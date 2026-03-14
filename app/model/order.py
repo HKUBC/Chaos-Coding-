@@ -12,7 +12,7 @@ class Order:
         self.order_id          = order_id
         self.customer_id       = customer_id
         self.restaurant_id     = restaurant_id
-        
+
         self.items: list[Item] = []                     # List of items
 
         self.status            = OrderStatus.CREATING    # Order status: creating, pending, preparing, delivered, cancelled
