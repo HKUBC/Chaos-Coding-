@@ -11,7 +11,7 @@ def load_restaurant(file_path):
         restaurant_id = row['restaurant_id'] #gets the restaurant id from the csv file
         #if there is no restaurant with the id, then create a new restaurant and add it to the dictionary
         if restaurant_id not in restaurants:
-            restaurants[restaurant_id] = restaurant(restaurant_id)
+            restaurants[restaurant_id] = Restaurant(restaurant_id)
         
         restaurant = restaurants[restaurant_id] #gets the restaurant object from the dictionary, this is for a specific restaurant id
         
