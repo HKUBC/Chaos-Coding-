@@ -12,6 +12,9 @@ class RestaurantService:
         if not repo.restaurant_exists(restaurant_id):
             return None
 
+        if not repo.restaurant_is_open(restaurant_id):
+            return None
+
         return repo.get_restaurant_by_id(restaurant_id)
     
 
@@ -28,6 +31,8 @@ class RestaurantService:
 
         data = repo.search_restaurants(cuisine)
 
+        data = data[data["is_open"] == True]
+
         return data[
             ["restaurant_id","food_item","preferred_cuisine"]
         ].to_dict("records")
@@ -39,6 +44,12 @@ class RestaurantService:
         if not repo.restaurant_exists(restaurant_id):
             return None
 
+        if not repo.restaurant_is_open(restaurant_id):
+            return None
+
         data = repo.filter_menu(restaurant_id, cuisine)
 
         return data.to_dict("records")
+    
+
+   
