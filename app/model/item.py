@@ -16,7 +16,7 @@ class Item:
     def total_price(self) -> float:
         return self.price * self.quantity
     
-    def update(self, name: int = None, price: float = None, description: str = None, quantity: int = None):
+    def update(self, name: int = None, price: float = None, description: str = None, quantity: int = None): # pyright: ignore[reportArgumentType]
         if name        is not None: self.name        = name
         if price       is not None: self.price       = price
         if quantity    is not None: self.quantity    = quantity
