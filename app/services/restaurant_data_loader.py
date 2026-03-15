@@ -20,7 +20,7 @@ def load_restaurant(file_path):
             menu = Menu(restaurant_id)
             restaurant.add_menu(menu)
         else:
-            menu = restaurant.menu[0] #gets the menu object from the restaurant, this is for a specific restaurant id
+            menu = restaurant.menu #gets the menu object from the restaurant, this is for a specific restaurant id
 
         #now we create an item object and add it to the menu
         item = Item(row['item_id'], row['name'], row['price'], row['quantity'])
