@@ -4,6 +4,9 @@ repo = RestaurantRepository()
 
 class RestaurantService:
 
+    def get_all_restaurants(self):
+        return repo.get_all_restaurants()
+
     def get_restaurant(self, restaurant_id):
 
         if not repo.restaurant_exists(restaurant_id):

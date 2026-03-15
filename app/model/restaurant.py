@@ -1,16 +1,13 @@
-from fastapi import APIRouter, HTTPException
-from app.services.restaurant_service import RestaurantService
+class Restaurant:
+    def __init__(self, restaurant_id): #takes in the restaurant id as a parameter and initializes the restaurant object with an empty menu
+        self.restaurant_id = restaurant_id 
+        self.menu = None #this is the menu for the restaurant
 
-router = APIRouter(prefix="/restaurants")
 
-service = RestaurantService()
 
-@router.get("/{restaurant_id}")
-def get_restaurant(restaurant_id: int):
+    def add_menu(self, menu):
+      if self.menu is not None: #if the restaurant already has a menu, then raise an error because a restaurant can only have one menu
+          raise ValueError("Menu already exists for this restaurant.")
 
-    restaurant = service.get_restaurant(restaurant_id)
+      self.menu = menu #sets the menu for the restaurant
 
-    if restaurant is None:
-        raise HTTPException(status_code=404, detail="Restaurant not found")
-
-    return restaurant
