@@ -13,6 +13,7 @@ class RestaurantRepository:
         if "is_open" not in self.df.columns:
             self.df["is_open"] = True
 
+
     def get_restaurant_ids(self):
 
         return self.df["restaurant_id"].unique()
@@ -66,3 +67,13 @@ class RestaurantRepository:
             return None
 
         return data.iloc[0].to_dict()
+    
+
+    def restaurant_is_open(self, restaurant_id):
+
+        restaurant = self.df[self.df["restaurant_id"] == restaurant_id]
+
+        if restaurant.empty:
+            return False
+
+        return restaurant["is_open"].iloc[0] == True
