@@ -52,4 +52,33 @@ class RestaurantService:
         return data.to_dict("records")
     
 
+    def favorite_restaurant(self, restaurant_id): 
+        #adds the restaurant to the user's favorites, it checks if the restaurant exists and is open before adding it to the favorites    
+
+        if not repo.restaurant_exists(restaurant_id):
+            return False
+
+        return repo.add_favorite(restaurant_id)
+    
+
+
+    def unfavorite_restaurant(self, restaurant_id):
+        #removes the restaurant from the user's favorites, it checks if the restaurant exists before removing it from the favorites
+        return repo.remove_favorite(restaurant_id)
+
+
+    def get_favorites(self):
+        #returns a list of the user's favorite restaurants, it checks if the restaurant is open before returning it in the list
+        favorites = repo.get_favorites()
+
+        results = []
+
+        for rid in favorites:
+            restaurant = repo.get_restaurant_by_id(rid)
+            if restaurant:
+                results.append(restaurant)
+
+        return results
+    
+
    
