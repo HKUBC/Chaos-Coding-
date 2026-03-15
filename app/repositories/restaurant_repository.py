@@ -12,6 +12,10 @@ class RestaurantRepository:
 
         if "is_open" not in self.df.columns:
             self.df["is_open"] = True
+        
+        self.favorites = set()  # this will store the restaurant ids of the user's favorite restaurants, it is a set to avoid duplicates
+
+
 
     def get_all_restaurants(self): #returns a list of all the restaurants in the dataframe
         return self.df["restaurant_id"].unique().tolist()
@@ -72,3 +76,29 @@ class RestaurantRepository:
             return False
 
         return restaurant["is_open"].iloc[0] == True
+    
+
+
+    def add_favorite(self, restaurant_id): 
+        #adds a restaurant to the user's favorites list, returns true if the restaurant was added successfully, false if the restaurant id does not exist in the dataframe
+
+        if restaurant_id not in self.get_restaurant_ids():
+            return False
+
+        self.favorites.add(restaurant_id)
+        return True
+
+
+    def remove_favorite(self, restaurant_id):
+        #removes a restaurant from the user's favorites list, returns true if the restaurant was removed successfully, false if the restaurant id does not exist in the favorites list
+      
+        if restaurant_id in self.favorites:
+            self.favorites.remove(restaurant_id)
+            return True
+
+        return False
+
+
+    def get_favorites(self):
+        #returns a list of the user's favorite restaurants, it is a list to maintain the order of the favorites
+        return list(self.favorites)
