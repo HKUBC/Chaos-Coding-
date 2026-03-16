@@ -15,3 +15,27 @@ def root():
 
 #restaurant = load_restaurant('app/data/food_delivery.csv') #loads the restaurant data from the csv file and stores it in a dictionary, where the key is the restaurant id and the value is the restaurant object
 
+@app.get("/restaurants/{restaurant_id}/menu")
+# this route method will get the menu of a restaurant by its id, it also allows for filtering the menu by food item, cuisine, order time, and price range, if the restaurant is not found or is closed then it will return a 404 error
+def get_filtered_menu(
+    restaurant_id: int,
+    food_item: str = None,
+    cuisine: str = None,
+    order_time: str = None,
+    min_price: float = None,
+    max_price: float = None
+):
+
+    result = service.filter_items(
+        restaurant_id,
+        food_item,
+        cuisine,
+        order_time,
+        min_price,
+        max_price
+    )
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Restaurant not found or closed")
+
+    return result
