@@ -102,3 +102,35 @@ class RestaurantRepository:
     def get_favorites(self):
         #returns a list of the user's favorite restaurants, it is a list to maintain the order of the favorites
         return list(self.favorites)
+
+
+
+
+    def filter_menu(
+        self,
+        restaurant_id,
+        food_item=None,
+        cuisine=None,
+        order_time=None,
+        min_price=None,
+        max_price=None
+    ):
+
+        data = self.df[self.df["restaurant_id"] == restaurant_id]
+
+        if food_item:
+            data = data[data["food_item"].str.contains(food_item, case=False)]
+
+        if cuisine:
+            data = data[data["preferred_cuisine"].str.contains(cuisine, case=False)]
+
+        if order_time:
+            data = data[data["order_time"].str.contains(order_time, case=False)]
+
+        if min_price is not None:
+            data = data[data["order_value"] >= min_price]
+
+        if max_price is not None:
+            data = data[data["order_value"] <= max_price]
+
+        return data[["food_item", "order_value", "preferred_cuisine", "order_time"]]
