@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter
 from app.api.routes.restaurant_route import router as restaurant_router
-from app.services.restaurant_data_loader import load_restaurant
+#from app.services.restaurant_data_loader import load_restaurant
 
 app = FastAPI()
 
@@ -13,5 +13,5 @@ app.include_router(restaurant_router)
 def root():
     return {"message": "Food Delivery API running"}
 
-restaurant = load_restaurant('app/data/restaurants.csv') #loads the restaurant data from the csv file and stores it in a dictionary, where the key is the restaurant id and the value is the restaurant object
+#restaurant = load_restaurant('app/data/food_delivery.csv') #loads the restaurant data from the csv file and stores it in a dictionary, where the key is the restaurant id and the value is the restaurant object
 
