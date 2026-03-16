@@ -1,6 +1,6 @@
-from model.item import Item
-from model.order_status import OrderStatus
-from services.data_service import DataService
+from app.model.item import Item
+from app.model.order_status import OrderStatus
+from app.services.data_service import DataService
 
 class Order:
     """
@@ -20,13 +20,13 @@ class Order:
 
     def add_item(self, item: Item):
         if self.status != OrderStatus.CREATING:
-            raise ValueError(f"Cannot add item. Current order status: {self.status}")
+            raise ValueError(f"Cannot add item. Your order is currently {self.status}.")
         
         self.items.append(item)
 
     def remove_item(self, item_id: str) -> Item | None:
         if self.status != OrderStatus.CREATING:
-            raise ValueError(f"Cannot remove item. Current order status: {self.status}")
+            raise ValueError(f"Cannot remove item. Your order is currently {self.status}")
         
         self.items = [item for item in self.items 
                         if item.item_id != item_id]
@@ -43,20 +43,25 @@ class Order:
 
     def start_order(self):
         if self.items == []:
-            raise ValueError("Cannot start order with no items.")
+            raise ValueError("Cannot start your order with no items.")
 
         if not self.status.can_start():
-            raise ValueError(f"Cannot start order. Current status: {self.status}")
+            raise ValueError(f"Cannot start your order. Your order is currently {self.status}.")
         
         delivery_data = self._data_service.load_data()
         if delivery_data:
             row = delivery_data[1]
-            print(f"Starting order {self.order_id} with delivery time: ", row.get('delivery_time', 'N/A'))
+            print(f"Starting your order {self.order_id} with delivery time: ", row.get('delivery_time', 'N/A'))
 
-        self.update_status(OrderStatus.PREPARING)
+        self.update_status(OrderStatus.PENDING)
 
     def cancel_order(self):
         if not self.status.can_cancel():
-            raise ValueError(f"Cannot cancel order. Current status: {self.status}")
+            if self.status == OrderStatus.CREATING:
+                raise ValueError(f"Cannot cancel your order. Your order hasn't been started yet.")
+            elif self.status == OrderStatus.DELIVERED:
+                raise ValueError(f"Cannot cancel your order. Your order has already been delivered.")
+            else:
+                raise ValueError(f"Cannot cancel your order. Your order is currently {self.status}.")
         
         self.update_status(OrderStatus.CANCELLED)

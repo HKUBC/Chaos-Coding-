@@ -8,8 +8,6 @@ class Item:
         if price < 0: # test to check if the price is negative, if it is then raise a ValueError
             raise ValueError("Price cannot be negative.")
         
-        
-
         self.item_id = item_id
         self.name = name
         self.price = price
