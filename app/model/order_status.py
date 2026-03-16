@@ -12,7 +12,7 @@ class OrderStatus(Enum):
     CANCELLED = "cancelled"
 
     def can_start(self) -> bool:
-        return self == OrderStatus.PENDING
+        return self == OrderStatus.CREATING
     
     def can_cancel(self) -> bool:
         return self in (OrderStatus.PENDING, OrderStatus.PREPARING)
