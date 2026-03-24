@@ -54,3 +54,20 @@ def unfavorite_restaurant(restaurant_id: int):
 def get_favorites():
 
     return service.get_favorites()
+
+
+# this route method is to get the profile of a restaurant with its menu
+@router.get("/{restaurant_id}/profile")
+async def get_restaurant_profile(restaurant_id: int, cuisine: str = None):
+     
+     restaurant = service.get_restaurant(restaurant_id)
+     if not restaurant:
+         raise HTTPException(status_code=404, detail="Restaurant not available")
+     
+     menu = service.get_menu(restaurant_id)
+     if not menu:
+         raise HTTPException(status_code=404, detail="Menu not available")
+     return {
+        "restaurant": restaurant,
+        "menu": menu
+    }
