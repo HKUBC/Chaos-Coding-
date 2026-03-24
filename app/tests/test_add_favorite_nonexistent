@@ -3,6 +3,6 @@ from app.services.restaurant_service import RestaurantService, repo
 
 def test_add_favorite_nonexistent():
 
-    result = service.favorite_restaurant(999999)
+    result = RestaurantService().favorite_restaurant(999999)
 
     assert result == False
