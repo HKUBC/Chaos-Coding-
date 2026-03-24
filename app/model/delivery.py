@@ -11,3 +11,10 @@ class Delivery:
         self.delivery_id = delivery_id
         self.order = order
         self.status = DeliveryStatus.PENDING
+
+    def update_status(self, new_status: DeliveryStatus):
+        if not self.status.can_update():
+            raise ValueError(f"Can't update delivery status. Your delivery is currently {self.status}.")
+        
+        self.status = new_status
+        # The delivery status can be updated if it's not already cancelled or delivered
