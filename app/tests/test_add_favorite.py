@@ -4,6 +4,6 @@ service = RestaurantService()
 
 def test_add_favorite():
 
-    result = service.favorite_restaurant(1)
+    result = RestaurantService().favorite_restaurant(1)
 
     assert result == True
