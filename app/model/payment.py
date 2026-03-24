@@ -7,6 +7,7 @@ class Payment:
    
     # all the values required to create a payment object, the card details are optional and only required if the payment method is card
     def __init__(self, payment_id: str, order_id: str, amount: float, method: str,
+                 customer_id: str | None = None, restaurant_id: str | None = None,
                  card_number: str | None = None, expiry: str | None = None, cvv: str | None = None):
 
         # to check the method choosed is valid or not
@@ -22,14 +23,16 @@ class Payment:
             if not card_number or not expiry or not cvv:
                 raise ValueError("Card payments require card_number, expiry, and cvv.")
 
-        self.payment_id  = payment_id
-        self.order_id    = order_id
-        self.amount      = amount
-        self.method      = method
-        self.card_number = card_number  # stored as-is for simulation; mask in production
-        self.expiry      = expiry
-        self.cvv         = cvv
-        self.status      = PaymentStatus.PENDING
+        self.payment_id    = payment_id
+        self.order_id      = order_id
+        self.amount        = amount
+        self.method        = method
+        self.customer_id   = customer_id
+        self.restaurant_id = restaurant_id
+        self.card_number   = card_number  # stored as-is for simulation; mask in production
+        self.expiry        = expiry
+        self.cvv           = cvv
+        self.status        = PaymentStatus.PENDING
 
 #this is just giving out the details of the payment object
     def display(self):
