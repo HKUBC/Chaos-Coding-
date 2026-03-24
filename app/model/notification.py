@@ -11,10 +11,7 @@ class NotificationType(Enum):
     MENU_UPDATED      = "menu_updated"
 
 class Notification:
-    """
-    Represents a single notification sent to a user or restaurant.
-    """
-
+  
     def __init__(
         self,
         notification_id: str,

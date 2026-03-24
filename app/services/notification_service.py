@@ -1,12 +1,9 @@
-import uuid
+import uuid  # Used for generating unique notification IDs
 from app.model.notification import Notification, NotificationType
 from app.repositories.notification_repository import NotificationRepository
 
 class NotificationService:
-    """
-    Central service for creating and dispatching notifications.
-    Issue #43: notify_restaurant_of_order
-    """
+
 
     def __init__(self, repo: NotificationRepository = None):
         self._repo = repo or NotificationRepository()
@@ -19,10 +16,7 @@ class NotificationService:
         customer_id: str,
         order_total: float,
     ) -> Notification:
-        """
-        Called after payment is confirmed. Sends a new-order alert
-        to the restaurant.
-        """
+
         notification = Notification(
             notification_id=str(uuid.uuid4()),
             recipient_id=restaurant_id,
