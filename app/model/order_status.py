@@ -5,11 +5,12 @@ class OrderStatus(Enum):
     Enum representing the valid states of an order.
     """
 
-    CREATING  = "creating"
-    PENDING   = "pending"
-    PREPARING = "preparing"
-    DELIVERED = "delivered"
-    CANCELLED = "cancelled"
+    CREATING   = "creating"
+    PENDING    = "pending"
+    PREPARING  = "preparing"
+    DELIVERING = "delivering"
+    DELIVERED  = "delivered"
+    CANCELLED  = "cancelled"
 
     def can_start(self) -> bool:
         return self == OrderStatus.CREATING
