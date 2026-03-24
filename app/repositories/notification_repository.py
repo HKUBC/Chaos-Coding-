@@ -1,10 +1,6 @@
 from app.model.notification import Notification
 
 class NotificationRepository:
-    """
-    In-memory store for notifications.
-    Key: recipient_id → list of Notification objects.
-    """
 
     def __init__(self):
         self._store: dict[str, list[Notification]] = {}
@@ -20,5 +16,4 @@ class NotificationRepository:
 
 
     def clear(self) -> None:
-        """Utility used in tests to reset state between runs."""
         self._store.clear()
