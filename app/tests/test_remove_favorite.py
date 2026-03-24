@@ -1,5 +1,5 @@
 from app.services.restaurant_service import RestaurantService, repo
-
+service = RestaurantService()
 
 def test_remove_favorite():
 

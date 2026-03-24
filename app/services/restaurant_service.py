@@ -84,4 +84,31 @@ class RestaurantService:
         return results
     
 
-   
+
+    def filter_items( 
+        self,
+        restaurant_id,
+        food_item=None,
+        cuisine=None,
+        order_time=None,
+        min_price=None,
+        max_price=None
+    ):
+
+        if not repo.restaurant_exists(restaurant_id):
+            return None
+
+        if not repo.restaurant_is_open(restaurant_id):
+            return None
+
+        data = repo.filter_menu(
+            restaurant_id,
+            food_item,
+            cuisine,
+            order_time,
+            min_price,
+            max_price
+        )
+
+        return data.to_dict("records")
+    
