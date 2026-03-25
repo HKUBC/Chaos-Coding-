@@ -37,5 +37,3 @@ def order(data_service, service):
 @pytest.fixture
 def item():
     return Item(item_id=1, name="Burger", price=9.99)
-
-
