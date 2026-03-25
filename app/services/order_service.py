@@ -1,32 +1,42 @@
+import pandas as pd
 from app.model.order import Order
 from app.model.order_status import OrderStatus
 from app.repositories.order_repository import OrderRepository
+from app.services.auth_service import AuthService
 
 
 repo = OrderRepository()
 
 class OrderService:
 
+    def __init__(self, auth_service: AuthService | None = None):
+        self._auth = auth_service
+
     # Creates a new order by using an order_id, customer_id, and restaurant_id
     def create_order(self, order_id: str, customer_id: str, restaurant_id: str) -> Order:
         order = Order(order_id, customer_id, restaurant_id)
         return order
-    # Starts an order by changing its status to pending and saving it to the session storage
-    def place_order(self, order: Order) -> Order:
+
+    # Starts an order — requires a valid session token if auth is enabled
+    def place_order(self, order: Order, token: str | None = None) -> Order:
+        if self._auth is not None:
+            if token is None:
+                raise ValueError("You must be logged in to place an order.")
+            self._auth.validate_token(token)
         order.start_order()
         repo.save(order)
         return order
 
     # Retrieves an order by its order_id
-    def get_order(self, order_id: str) -> Order | None:
+    def get_order(self, order_id: str) -> pd.DataFrame:
         return repo.get_order_by_id(order_id)
-    
+
     # Retrieves all orders associated with a specific customer_id
-    def get_orders_by_customer(self, customer_id: str) -> list[Order] | None:
+    def get_orders_by_customer(self, customer_id: str) -> pd.DataFrame:
         return repo.get_orders_by_customer(customer_id)
     
 
-# Retrieves all orders associated with a specific customer_id from the session storage and formats them for output
+    # Retrieves all orders associated with a specific customer_id from the session storage and formats them for output
     def get_order_history(self, customer_id: str) -> list[dict]:
         orders = repo.get_session_orders(customer_id)
         return [
@@ -48,7 +58,7 @@ class OrderService:
             for o in orders
         ]
 
-# Allows customers to reorder a past order by creating a new order with the same items and restaurant, but a new order_id
+    # Allows customers to reorder a past order by creating a new order with the same items and restaurant, but a new order_id
     def reorder(self, customer_id: str, order_id: str, new_order_id: str) -> Order:
         all_orders = repo.get_session_orders(customer_id)
         past_order = next((o for o in all_orders if o.order_id == order_id), None)
