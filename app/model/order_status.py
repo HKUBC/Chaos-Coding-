@@ -17,3 +17,6 @@ class OrderStatus(Enum):
     
     def can_cancel(self) -> bool:
         return self in (OrderStatus.PENDING, OrderStatus.PREPARING)
+    
+    def can_deliver(self) -> bool:
+        return self == OrderStatus.PREPARING
