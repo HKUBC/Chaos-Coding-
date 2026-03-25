@@ -8,6 +8,9 @@ class AuthService:
     def __init__(self):
         self._credentials: dict[str, tuple[str, str]] = {}  # user_id -> (salt, hashed_password)
 
+        # saves the session tokens in a dictionary
+        self._tokens: dict[str, str] = {}  # token -> user_id
+
 # the sha256 is an alogrithm that is used to hast the password.
     def _hash_password(self, password: str, salt: str) -> str:
         return hashlib.sha256((salt + password).encode()).hexdigest()
@@ -25,4 +28,20 @@ class AuthService:
         salt, stored_hash = self._credentials[user_id]
         if self._hash_password(password, salt) != stored_hash:
             raise ValueError("Incorrect password.")
-        return user_id
+        # this creates a random token for the session and saves it
+        token = os.urandom(32).hex()
+        self._tokens[token] = user_id
+        return token
+
+ # this validates the token by checkin if it exists in dictionary
+ # and then returns the user id associated with it
+    def validate_token(self, token: str) -> str:
+        if token not in self._tokens:
+            raise ValueError("Invalid or expired session token.")
+        return self._tokens[token]
+
+#this deletes the token from the dictionary to logout the user
+    def logout(self, token: str) -> None:
+        if token not in self._tokens:
+            raise ValueError("Invalid or expired session token.")
+        del self._tokens[token]
