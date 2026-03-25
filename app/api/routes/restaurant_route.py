@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from app.services.restaurant_service import RestaurantService
 from app.repositories.restaurant_repository import RestaurantRepository
 
-router = APIRouter(prefix="/restaurants")
+router = APIRouter(prefix="/restaurants", tags=["Restaurants"])
 service = RestaurantService()
 
 
