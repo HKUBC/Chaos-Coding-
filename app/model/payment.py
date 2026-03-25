@@ -32,6 +32,12 @@ class Payment:
         self.card_number   = card_number  # stored as-is for simulation; mask in production
         self.expiry        = expiry
         self.cvv           = cvv
+
+        self.delivery_fee  = 2.50         # assuming a fixed delivery fee for simplicity
+        self.PST           = 0.07         # assuming a fixed PST rate of 7%
+        self.GST           = 0.05         # assuming a fixed GST rate of 5%
+        self.total_taxes   = (1 + self.PST + self.GST)
+
         self.status        = PaymentStatus.PENDING
 
 #this is just giving out the details of the payment object

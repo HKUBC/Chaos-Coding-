@@ -10,7 +10,7 @@ def test_payment_amount_matches_order():
     order.add_item(Item(item_id=1, name="Burger", price=25.00))
     order.start_order()  # moves order to PENDING
 
-    payment = Payment(payment_id="p1", order_id="o1", amount=25.00, method="paypal")
+    payment = Payment(payment_id="p1", order_id="o1", amount=(25.00 * 1.12) + 2.50, method="paypal")
 
     service = PaymentService()
     result = service.process_payment(payment, order)
