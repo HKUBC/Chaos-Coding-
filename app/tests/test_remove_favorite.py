@@ -3,8 +3,8 @@ service = RestaurantService()
 
 def test_remove_favorite():
 
-    service.favorite_restaurant(1)
+    RestaurantService().favorite_restaurant(1)
 
-    result = service.unfavorite_restaurant(1)
+    result = RestaurantService().unfavorite_restaurant(1)
 
     assert result == True
