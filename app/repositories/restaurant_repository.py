@@ -28,7 +28,7 @@ class RestaurantRepository:
     
 
     def get_open_restaurants(self): # this function gives out only the restaurant that are open
-     return self.df[self.df["is_open"] == True]
+        return self.df[self.df["is_open"] == True]
     
 
 
@@ -42,22 +42,6 @@ class RestaurantRepository:
 
 
 
-    def filter_menu(self, restaurant_id, cuisine=None):
-
-        data = self.df[self.df["restaurant_id"] == restaurant_id]
-
-        if cuisine:
-            data = data[
-                data["preferred_cuisine"].str.contains(
-                    cuisine,
-                    case=False
-                )
-            ]
-
-        return data[["food_item","order_value","preferred_cuisine"]]
-    
-    
-    
     def get_restaurant_by_id(self, restaurant_id):
 
         data = self.df[self.df["restaurant_id"] == restaurant_id]
