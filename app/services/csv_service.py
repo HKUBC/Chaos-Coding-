@@ -1,6 +1,6 @@
 import csv
 
-from services.data_service import DataService
+from app.services.data_service import DataService
 
 class CSVService(DataService):
     def __init__(self, csv_path: str):
