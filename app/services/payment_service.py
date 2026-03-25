@@ -1,6 +1,7 @@
 from app.model.payment import Payment
 from app.model.payment_status import PaymentStatus
 from app.services.notification_service import NotificationService
+from app.services.card_validator import CardValidator
 
 notification_service = NotificationService()
 
@@ -8,7 +9,12 @@ notification_service = NotificationService()
 class PaymentService:
 
     def process_payment(self, payment: Payment) -> Payment:
-        
+
+        # created method for only card payments
+        # validate card details before approving
+        if payment.method == "card":
+            CardValidator().validate(payment.card_number, payment.expiry, payment.cvv)
+
         payment.status = PaymentStatus.APPROVED # this changes the status to approved
 
         # notify the restaurant that a payment has been confirmed for their order
