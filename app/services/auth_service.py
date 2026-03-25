@@ -1,5 +1,6 @@
 import hashlib
 import os
+from app.model.user_role import UserRole
 
 
 class AuthService:
@@ -7,6 +8,7 @@ class AuthService:
     #the salt is used to make the password more secure.
     def __init__(self):
         self._credentials: dict[str, tuple[str, str]] = {}  # user_id -> (salt, hashed_password)
+        self._roles: dict[str, UserRole] = {}               # user_id -> role
 
         # saves the session tokens in a dictionary
         self._tokens: dict[str, str] = {}  # token -> user_id
@@ -16,11 +18,12 @@ class AuthService:
         return hashlib.sha256((salt + password).encode()).hexdigest()
 
 # os.urandom is used to generate a random salt for each user
-    def sign_up(self, user_id: str, password: str) -> None:
+    def sign_up(self, user_id: str, password: str, role: UserRole) -> None:
         if user_id in self._credentials:
             raise ValueError(f"User {user_id} already has an account.")
         salt = os.urandom(16).hex()
         self._credentials[user_id] = (salt, self._hash_password(password, salt))
+        self._roles[user_id] = role
 
     def login(self, user_id: str, password: str) -> str:
         if user_id not in self._credentials:
@@ -45,3 +48,13 @@ class AuthService:
         if token not in self._tokens:
             raise ValueError("Invalid or expired session token.")
         del self._tokens[token]
+
+    # returns the role of the user associated with the token
+    def get_role(self, token: str) -> UserRole:
+        user_id = self.validate_token(token)
+        return self._roles[user_id]
+
+    # raises an error if the user's role does not match the required role
+    def require_role(self, token: str, required_role: UserRole) -> None:
+        if self.get_role(token) != required_role:
+            raise ValueError(f"Access denied. Required role: {required_role.value}.")
