@@ -17,6 +17,10 @@ class Delivery:
     def update_status(self, new_status: DeliveryStatus):
         if not self.status.can_update():
             raise ValueError(f"Can't update delivery status. Your delivery is currently {self.status}.")
+        # The delivery status can only be updated if it's not already cancelled or delivered. For example,
+        # you can't update the status of a cancelled delivery to delivering or delivered.
+        if new_status == DeliveryStatus.DELIVERING and self.driver is None:
+            raise ValueError("A driver must be assigned before the delivery can start.")
         
         self.status = new_status
         # The delivery status can be updated if it's not already cancelled or delivered
