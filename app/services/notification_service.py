@@ -110,4 +110,23 @@ class NotificationService:
         return notification
         
 
-        
+    def notify_users_of_menu_update(
+        self,
+        restaurant_id: str,
+        item_name: str,
+    ) -> Notification:
+
+        notification = Notification(
+            notification_id=str(uuid.uuid4()),
+            recipient_id=restaurant_id,
+            recipient_type="restaurant",
+            notification_type=NotificationType.MENU_UPDATED,
+            message=(
+                f"The menu for restaurant #{restaurant_id} has been updated. "
+                f"{item_name} has been added."
+            ),
+        )
+        self._repo.save(notification)
+        return notification
+
+            
