@@ -1,4 +1,6 @@
 from app.model.restaurant_registry import Restaurant_registry
+from app.services.notification_service import NotificationService
+
 
 class Menu:
     def __init__(self, restaurant_id):
@@ -10,6 +12,8 @@ class Menu:
         
         self.restaurant_id = restaurant_id
         self.items = [] #these are the food items
+        # We will use the notification service to send notifications 
+        self._notification_service = NotificationService()
 
     def add_item(self, item): #takes in an item object and adds it to the menu, also checks if the price and quantity of the item are valid
 
@@ -20,7 +24,10 @@ class Menu:
         
         item.restaurant_id = self.restaurant_id # this will stamp the restaurant id of the item to the restaurant id of the menu, this is important for when we want to retrieve the items for a specific restaurant
 
-
+        self._notification_service.notify_users_of_menu_update(
+            restaurant_id=self.restaurant_id,
+             item_name=item.name,
+        )
         self.items.append(item)
 
     def get_all_items(self):
