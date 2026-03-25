@@ -8,7 +8,7 @@ class Order:
     Dependency on DataService to load delivery data from a CSV file.
     """
 
-    def __init__(self, order_id : str, customer_id : str, restaurant_id : str, data_service: DataService):
+    def __init__(self, order_id : str, customer_id : str, restaurant_id : str, data_service: DataService, notification_service=None):
         self.order_id          = order_id
         self.customer_id       = customer_id
         self.restaurant_id     = restaurant_id
@@ -17,7 +17,10 @@ class Order:
 
         self.status            = OrderStatus.CREATING    # Order status: creating, pending, preparing, delivered, cancelled
         self._data_service     = data_service
+        self._notification_service = notification_service
+        
 
+        
     def add_item(self, item: Item):
         if self.status != OrderStatus.CREATING:
             raise ValueError(f"Cannot add item. Your order is currently {self.status}.")
@@ -38,8 +41,6 @@ class Order:
     def order_total(self) -> float:
         return sum(item.total_price() for item in self.items)
     
-    def update_status(self, new_status: OrderStatus):
-        self.status = new_status
 
     def start_order(self):
         if self.items == []:
@@ -65,3 +66,14 @@ class Order:
                 raise ValueError(f"Cannot cancel your order. Your order is currently {self.status}.")
         
         self.update_status(OrderStatus.CANCELLED)
+
+
+    def update_status(self, new_status: OrderStatus):
+        self.status = new_status
+        if self._notification_service:
+            self._notification_service.notify_user_of_order_status(
+                customer_id=self.customer_id,
+                order_id=self.order_id,
+                new_status=new_status.value,
+            )
+            
