@@ -9,12 +9,13 @@ from app.model.delivery_status import DeliveryStatus
 @pytest.fixture
 def order_example():
     order = MagicMock(spec=Order)
+    order.order_id = "001"
     order.status = OrderStatus.PENDING
     return order
 
 @pytest.fixture
 def delivery(order_example):
-    return Delivery(delivery_id="001", order=order_example)
+    return Delivery(order=order_example)
 
 # ----- Test cases for Delivery class -----
 def test_update_status_to_delivering(delivery):
@@ -33,3 +34,8 @@ def test_update_status_after_delivered(delivery):
     delivery.update_status(DeliveryStatus.DELIVERED)
     with pytest.raises(ValueError, match="Can't update delivery status. Your delivery is currently DeliveryStatus.DELIVERED."):
         delivery.update_status(DeliveryStatus.CANCELLED)
+
+def test_update_status_after_cancelled(delivery):
+    delivery.update_status(DeliveryStatus.CANCELLED)
+    with pytest.raises(ValueError, match="Can't update delivery status. Your delivery is currently DeliveryStatus.CANCELLED."):
+        delivery.update_status(DeliveryStatus.DELIVERING)
