@@ -4,8 +4,8 @@ service = RestaurantService()
 
 def test_get_favorites():
 
-    service.favorite_restaurant(1)
+    RestaurantService().favorite_restaurant(1)
 
-    result = service.get_favorites()
+    result = RestaurantService().get_favorites()
 
     assert isinstance(result, list)

@@ -10,6 +10,7 @@ class NotificationType(Enum):
     PAYMENT_DECLINED  = "payment_declined"
     MENU_UPDATED      = "menu_updated"
 
+
 class Notification:
   
     def __init__(

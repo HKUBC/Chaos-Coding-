@@ -39,6 +39,9 @@ class RestaurantService:
     
     
 
+    def get_menu(self, restaurant_id, cuisine=None):
+        return self.filter_menu(restaurant_id, cuisine)
+
     def filter_menu(self, restaurant_id, cuisine=None):
 
         if not repo.restaurant_exists(restaurant_id):
