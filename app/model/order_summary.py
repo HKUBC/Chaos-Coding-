@@ -9,6 +9,7 @@ class OrderSummary:
         self.items = order.items
         self.total_amount = order.order_total()
         
+        self.order_date = order.order_date
         self.delivery_address = None # Placeholder for delivery address once customer class is implemented
 
     def to_dict(self):
@@ -19,5 +20,6 @@ class OrderSummary:
             "items": [item.to_dict() for item in self.items],
             "quantity":[item.quantity for item in self.items],
             "total_amount": self.total_amount,
+            "order_date": self.order_date,
             "delivery_address": self.delivery_address
         }
