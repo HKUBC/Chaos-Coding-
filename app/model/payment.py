@@ -39,7 +39,7 @@ class Payment:
 
         self.status        = PaymentStatus.PENDING
 
-#this is just giving out the details of the payment object
+    #this is just giving out the details of the payment object
     def display(self):
         return (f"Payment(payment_id='{self.payment_id}', order_id='{self.order_id}', "
                 f"amount={self.amount}, method='{self.method}', status={self.status})")
