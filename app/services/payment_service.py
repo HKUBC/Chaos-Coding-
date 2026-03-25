@@ -59,7 +59,7 @@ class PaymentService:
                 customer_id=payment.customer_id,
                 order_total=payment.amount,
             )
-
+        
         if payment.customer_id:
             notification_service.notify_user_of_payment(
                 customer_id=payment.customer_id,
