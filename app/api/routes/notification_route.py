@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.services.notification_service import NotificationService
 
-router = APIRouter(prefix="/notifications", tags=["notifications"])
+router = APIRouter(prefix="/notifications")
 service = NotificationService()
 
 #This route will return all notifications for a given recipient (restaurant or customer). 
