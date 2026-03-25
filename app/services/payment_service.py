@@ -52,3 +52,11 @@ class PaymentService:
             )
 
         return payment
+
+    # this is the function that will release the order to the restaurant for preparation, it will check if the payment has been approved before releasing the order to the restaurant
+    def release_order_to_restaurant(self, order: Order):
+        # check for business owner that the payment from the customer was sucessfully approved before sending the order to the restaurant for preparation
+        
+        if order.order_id not in self._paid_orders:
+            raise ValueError(f"Order {order.order_id} cannot be prepared — payment has not been completed.")
+        order.update_status(OrderStatus.PREPARING)
