@@ -28,7 +28,7 @@ def assign_delivery(order_id: str):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    return {"message": "Delivery assigned successfully to order {order_id}"}
+    return {"message": f"Delivery assigned successfully to order {order_id}"}
 
 @router.get("/{order_id}")
 # this route method will get the delivery details for a given order id
