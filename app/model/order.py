@@ -12,10 +12,10 @@ class Order:
         self.restaurant_id     = restaurant_id
 
         self.items: list[Item] = []
-        self.status            = OrderStatus.CREATING
-
+        self.status            = OrderStatus.CREATING    # Order status: creating, pending, preparing, delivered, cancelled
+        
         self._notification_service = notification_service
-
+        
     def add_item(self, item: Item):
         if self.status != OrderStatus.CREATING:
             raise ValueError(f"Cannot add item. Your order is currently {self.status}.")
@@ -43,6 +43,7 @@ class Order:
                 order_id = self.order_id,
                 new_status = new_status.value,
             )
+    
 
     def start_order(self):
         if self.items == []:
