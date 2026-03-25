@@ -4,7 +4,6 @@ from app.repositories.notification_repository import NotificationRepository
 from app.services.notification_service import NotificationService
 
 
-
 @pytest.fixture
 def repo():
     return NotificationRepository()
@@ -13,7 +12,6 @@ def repo():
 @pytest.fixture
 def service(repo):
     return NotificationService(repo=repo)
-
 
 
 def test_creates_with_valid_data():
@@ -37,22 +35,8 @@ def test_to_dict_contains_required_keys():
     n = Notification("n1", "r1", "restaurant", NotificationType.ORDER_RECEIVED, "msg")
     d = n.to_dict()
     for key in ("notification_id", "recipient_id", "recipient_type",
-                "notification_type", "message", "metadata", "timestamp"):
+                "notification_type", "message", "timestamp"):
         assert key in d
-
-
-def test_metadata_defaults_to_empty_dict():
-    n = Notification("n1", "r1", "restaurant", NotificationType.ORDER_RECEIVED, "msg")
-    assert n.metadata == {}
-
-
-def test_metadata_stored_correctly():
-    n = Notification(
-        "n1", "r1", "restaurant",
-        NotificationType.ORDER_RECEIVED, "msg",
-        metadata={"order_id": "o99"},
-    )
-    assert n.metadata["order_id"] == "o99"
 
 
 def test_to_dict_notification_type_is_string():
@@ -63,7 +47,6 @@ def test_to_dict_notification_type_is_string():
 def test_timestamp_is_set_on_creation():
     n = Notification("n1", "r1", "restaurant", NotificationType.ORDER_RECEIVED, "msg")
     assert n.timestamp is not None
-
 
 
 def test_save_and_retrieve(repo):
@@ -100,7 +83,6 @@ def test_clear_removes_all_notifications(repo):
     assert repo.get_for_recipient("r1") == []
 
 
-
 def test_returns_notification_object(service):
     n = service.notify_restaurant_of_order("r42", "o1", "c5", 29.99)
     assert isinstance(n, Notification)
@@ -134,21 +116,6 @@ def test_message_contains_order_id(service):
 def test_message_contains_order_total(service):
     n = service.notify_restaurant_of_order("r42", "o1", "c5", 49.50)
     assert "49.50" in n.message
-
-
-def test_metadata_contains_order_id(service):
-    n = service.notify_restaurant_of_order("r42", "o1", "c5", 29.99)
-    assert n.metadata["order_id"] == "o1"
-
-
-def test_metadata_contains_customer_id(service):
-    n = service.notify_restaurant_of_order("r42", "o1", "c5", 29.99)
-    assert n.metadata["customer_id"] == "c5"
-
-
-def test_metadata_contains_order_total(service):
-    n = service.notify_restaurant_of_order("r42", "o1", "c5", 29.99)
-    assert n.metadata["order_total"] == 29.99
 
 
 def test_each_notification_has_unique_id(service):
