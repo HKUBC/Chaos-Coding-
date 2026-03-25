@@ -10,12 +10,20 @@ class PaymentService:
 
     def process_payment(self, payment: Payment) -> Payment:
 
+        approved = True
         # created method for only card payments
         # validate card details before approving
         if payment.method == "card":
-            CardValidator().validate(payment.card_number, payment.expiry, payment.cvv)
+            try:
+                CardValidator().validate(payment.card_number, payment.expiry, payment.cvv)
+            except ValueError:
+                approved = False
+# if the card details are valid, we can approve the payment, otherwise we will decline it
+        if approved:
+            payment.status = PaymentStatus.APPROVED # this changes the status to approved
+        else:
+            payment.status = PaymentStatus.DECLINED
 
-        payment.status = PaymentStatus.APPROVED # this changes the status to approved
 
         # notify the restaurant that a payment has been confirmed for their order
         if payment.restaurant_id and payment.customer_id:
@@ -25,5 +33,15 @@ class PaymentService:
                 customer_id=payment.customer_id,
                 order_total=payment.amount,
             )
+    
+       
+        if payment.customer_id:
+            notification_service.notify_user_of_payment(
+                customer_id=payment.customer_id,
+                order_id=payment.order_id,
+                amount=payment.amount,
+                approved=approved,
+            )
 
         return payment
+
