@@ -1,3 +1,4 @@
+from app.model import driver
 from app.model.order import Order
 from app.model.order_status import OrderStatus
 from app.model.delivery_status import DeliveryStatus
@@ -11,6 +12,7 @@ class Delivery:
         self.delivery_id = order.order_id
         self.order       = order
         self.status      = DeliveryStatus.PENDING
+        self.driver      = None
 
     def update_status(self, new_status: DeliveryStatus):
         if not self.status.can_update():
@@ -18,3 +20,12 @@ class Delivery:
         
         self.status = new_status
         # The delivery status can be updated if it's not already cancelled or delivered
+
+
+    # The driver can only be assigned if the delivery is not cancelled and doesn't already have a driver assigned
+    def assign_driver(self, driver):
+        if self.status == DeliveryStatus.CANCELLED:
+            raise ValueError("Cannot assign a driver to a cancelled delivery.")
+        if self.driver is not None:
+            raise ValueError("A driver is already assigned to this delivery.")
+        self.driver = driver
