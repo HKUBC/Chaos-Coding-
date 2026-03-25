@@ -5,7 +5,6 @@ from app.repositories.restaurant_repository import RestaurantRepository
 router = APIRouter(prefix="/restaurants", tags=["Restaurants"])
 service = RestaurantService()
 
-
 @router.get("/all_restaurants")
 # this route method will get all the restaurants in the system, if there are no restaurants then it will return an empty list
 async def get_all_restaurants():
