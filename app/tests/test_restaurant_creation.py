@@ -4,4 +4,4 @@ def test_restaurant_creation():
   r = Restaurant(1)
 
   assert r.restaurant_id == 1
-  assert r.menu == []
+  assert r.menu is None
