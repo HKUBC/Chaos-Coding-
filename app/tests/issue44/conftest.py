@@ -30,7 +30,6 @@ def order(data_service, service):
         order_id="o1",
         customer_id="c1",
         restaurant_id="r1",
-        data_service=data_service,
         notification_service=service,
     )
 
