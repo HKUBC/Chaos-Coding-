@@ -5,7 +5,6 @@ from app.api.routes.delivery_route import router as delivery_router
 from app.api.routes.driver_route import router as driver_router
 from app.api.routes.auth_route import router as auth_router
 
-
 from app.services.restaurant_data_loader import load_all_restaurant
 
 app = FastAPI()
