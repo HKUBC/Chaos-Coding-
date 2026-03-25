@@ -1,9 +1,6 @@
 class Item:
-    """
-    Represents an item from a menu.
-    """
 
-    def __init__(self, item_id: int, name: str, price: float, quantity: int = 1, restaurant_id: int = None):
+    def __init__(self, item_id: int, name: str, price: float, quantity: int = 1, restaurant_id: int | None = None):
 
         if price < 0: # test to check if the price is negative, if it is then raise a ValueError
             raise ValueError("Price cannot be negative.")
