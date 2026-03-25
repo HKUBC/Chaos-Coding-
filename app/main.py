@@ -3,6 +3,7 @@ from app.api.routes.restaurant_route import router as restaurant_router
 from app.api.routes.notification_route import router as notification_router
 from app.api.routes.delivery_route import router as delivery_router
 from app.services.restaurant_data_loader import load_all_restaurant
+from app.api.routes.driver_route import router as driver_router
 
 app = FastAPI()
 
@@ -11,6 +12,9 @@ router.include_router(restaurant_router) # this will include the restaurant rout
 app.include_router(restaurant_router)
 app.include_router(notification_router)
 app.include_router(delivery_router)
+app.include_router(driver_router) # this will include the driver router in the main router, so that all the routes defined in the driver router will be available in the main router
+
+
 
 @app.get("/")
 def root():
