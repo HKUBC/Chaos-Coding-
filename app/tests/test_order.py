@@ -18,7 +18,13 @@ def mock_data_service():
 @pytest.fixture
 def order(mock_data_service):
     """An Order instance for testing."""
-    return Order(order_id="123", customer_id="456", restaurant_id="789", data_service=mock_data_service)
+    return Order(
+        order_id="123",
+        customer_id="456",
+        restaurant_id="789",
+        data_service=mock_data_service,
+        notification_service=None,
+    )
 
 @pytest.fixture
 def item_example():
