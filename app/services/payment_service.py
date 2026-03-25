@@ -24,10 +24,10 @@ class PaymentService:
         if order.status != OrderStatus.PENDING:
             raise ValueError(f"Cannot process payment. Order is currently {order.status}.")
 
-        # 2nd check - pthe payment amount must be same as the order total amount
-        if payment.amount != order.order_total():
+        # 2nd check - the payment amount must be same as the order total amount
+        if payment.amount != (order.order_total() * payment.total_taxes) + payment.delivery_fee:
             raise ValueError(
-                f"Payment amount ${payment.amount} does not match order total ${order.order_total()}."
+                f"Payment amount ${payment.amount} does not match order total ${(order.order_total() * payment.total_taxes) + payment.delivery_fee}."
             )
 
         # 3rd check: prevent paying for the same order twice
