@@ -9,7 +9,6 @@ class OrderRepository:
         self.df = pd.read_csv(data_path)
         self._session_orders: dict[str, list] = {}  # This will store orders in memory for the duration of the session, keyed by customer_id
 
-
     # Creates a new order by using an order_id
     def get_order_by_id(self, order_id: str):
         return self.df[self.df["order_id"] == order_id]
@@ -25,6 +24,6 @@ class OrderRepository:
             self._session_orders[customer_id] = []
         self._session_orders[customer_id].append(order)
 
-# Retrieves all orders associated with a specific customer_id from the session storage
+    # Retrieves all orders associated with a specific customer_id from the session storage
     def get_session_orders(self, customer_id: str) -> list:
         return self._session_orders.get(customer_id, [])
