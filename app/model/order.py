@@ -1,5 +1,6 @@
 from app.model.item import Item
 from app.model.order_status import OrderStatus
+from datetime import datetime
 
 class Order:
     """
@@ -13,6 +14,7 @@ class Order:
 
         self.items: list[Item] = []
         self.status            = OrderStatus.CREATING    # Order status: creating, pending, preparing, delivered, cancelled
+        self.order_date: datetime | None = None          # Track when an order is placed
         
         self._notification_service = notification_service
         
@@ -51,6 +53,7 @@ class Order:
         if not self.status.can_start():
             raise ValueError(f"Cannot start your order. Your order is currently {self.status}.")
         self.update_status(OrderStatus.PENDING)
+        self.order_date = datetime.now()
 
     def cancel_order(self):
         if not self.status.can_cancel():
