@@ -35,12 +35,21 @@ class PaymentService:
         if order.order_id in self._paid_orders:
             raise ValueError(f"Order {order.order_id} has already been paid.")
 
+        approved = True
+        # created method for only card payments
         # validate card details before approving
         if payment.method == "card":
-            CardValidator().validate(payment.card_number, payment.expiry, payment.cvv)
+            try:
+                CardValidator().validate(payment.card_number, payment.expiry, payment.cvv)
+            except ValueError:
+                approved = False
 
-        payment.status = PaymentStatus.APPROVED # this changes the status to approved
-        self._paid_orders.add(order.order_id)  # mark this order as paid
+        # if the card details are valid, we can approve the payment, otherwise we will decline it
+        if approved:
+            payment.status = PaymentStatus.APPROVED # this changes the status to approved
+            self._paid_orders.add(order.order_id)  # mark this order as paid
+        else:
+            payment.status = PaymentStatus.DECLINED
 
         # notify the restaurant that a payment has been confirmed for their order
         if payment.restaurant_id and payment.customer_id:
@@ -51,12 +60,20 @@ class PaymentService:
                 order_total=payment.amount,
             )
 
+        if payment.customer_id:
+            notification_service.notify_user_of_payment(
+                customer_id=payment.customer_id,
+                order_id=payment.order_id,
+                amount=payment.amount,
+                approved=approved,
+            )
+
         return payment
 
     # this is the function that will release the order to the restaurant for preparation, it will check if the payment has been approved before releasing the order to the restaurant
     def release_order_to_restaurant(self, order: Order):
         # check for business owner that the payment from the customer was sucessfully approved before sending the order to the restaurant for preparation
-        
+
         if order.order_id not in self._paid_orders:
             raise ValueError(f"Order {order.order_id} cannot be prepared — payment has not been completed.")
         order.update_status(OrderStatus.PREPARING)
