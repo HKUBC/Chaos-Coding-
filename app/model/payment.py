@@ -17,7 +17,6 @@ class Payment:
         #to check the amount is not negative or zero
         if amount <= 0:
             raise ValueError("Payment amount must be greater than 0.")
-       
         # to check if all the card details are provided
         if method == "card":
             if not card_number or not expiry or not cvv:
@@ -32,6 +31,12 @@ class Payment:
         self.card_number   = card_number  # stored as-is for simulation; mask in production
         self.expiry        = expiry
         self.cvv           = cvv
+
+        self.delivery_fee  = 2.50         # Assume a flat rate of 2.50
+        self.PST           = 0.07         # Assume a flat rate of 7%
+        self.GST           = 0.05         # ASsume a flat rate of 5%
+        self.taxes         = 1 + self.PST + self.GST   # Total taxes
+
         self.status        = PaymentStatus.PENDING
 
 #this is just giving out the details of the payment object
