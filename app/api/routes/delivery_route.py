@@ -4,7 +4,7 @@ from app.model.order_status import OrderStatus
 from app.services.delivery_service import DeliveryService
 from app.services.order_service import OrderService
 
-router = APIRouter(prefix="/deliveries")
+router = APIRouter(prefix="/deliveries", tags=["Deliveries"])
 delivery_service = DeliveryService()
 order_service = OrderService()
 

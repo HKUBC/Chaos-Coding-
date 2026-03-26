@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from app.services.driver_service import DriverService
 from app.services.delivery_service import DeliveryService
 
-router = APIRouter(prefix="/drivers", tags=["drivers"])
+router = APIRouter(prefix="/drivers", tags=["Drivers"])
 driver_service = DriverService()
 delivery_service = DeliveryService()
 
