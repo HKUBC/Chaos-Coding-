@@ -1,13 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.services.auth_service import AuthService
+from app.model.user_role import UserRole
 
-router = APIRouter(prefix="/authenticator", tags=["Authenticator"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 service = AuthService()
 
 class SignUpRequest(BaseModel):
     user_id: str
     password: str
+    role: UserRole = UserRole.CUSTOMER
 
 class LoginRequest(BaseModel):
     user_id: str
@@ -19,7 +21,7 @@ class TokenRequest(BaseModel):
 @router.post("/signup")
 def sign_up(request: SignUpRequest):
     try:
-        service.sign_up(request.user_id, request.password)
+        service.sign_up(request.user_id, request.password, request.role)
         return {"message": f"User {request.user_id} created successfully."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
