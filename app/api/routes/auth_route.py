@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from app.services.auth_service import AuthService
 from app.model.user_role import UserRole
 
+
 router = APIRouter(prefix="/auth", tags=["Auth"])
 service = AuthService()
 
