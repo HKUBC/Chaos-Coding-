@@ -16,10 +16,17 @@ def assign_delivery(order_id: str):
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
 
+    if isinstance(order, dict):
+        row = order
+    else:
+        if order.empty:
+            raise HTTPException(status_code=404, detail="Order not found")
+        row = order.iloc[0]
+
     order = Order(
-        order_id=order["order_id"],
-        customer_id=order["customer_id"],
-        restaurant_id=order["restaurant_id"]
+        order_id=str(row["order_id"]),
+        customer_id=str(row["customer_id"]),
+        restaurant_id=str(row["restaurant_id"])
     )
     order.update_status(OrderStatus.PREPARING)
 
