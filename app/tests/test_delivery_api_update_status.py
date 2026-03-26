@@ -17,7 +17,7 @@ def test_api_update_status_with_valid_order():
             }
 
             client.post("/deliveries/1d8e87M/assign")
-            response = client.put("/deliveries/1d8e87M/update_status?status=DELIVERING")
+            response = client.put("/deliveries/1d8e87M/update_status?status=CANCELLED")
             assert response.status_code == 200
 
 def test_api_update_status_with_invalid_order():

@@ -40,8 +40,16 @@ def get_all_drivers():
 # API route to assign a driver to a delivery for a given order ID. Expects the driver_id and order_id as path parameters. Returns a success message or an error if the delivery or driver is not found, or if the assignment is invalid.
 @router.post("/{driver_id}/assign/{order_id}")
 def assign_driver_to_delivery(driver_id: str, order_id: str):
+    driver = driver_service.get_driver(driver_id)
+    if driver is None:
+        raise HTTPException(status_code=404, detail="Driver not found")
+
+    delivery = delivery_service.get_delivery(order_id)
+    if delivery is None:
+        raise HTTPException(status_code=404, detail="Delivery not found")
+
     try:
-        delivery = delivery_service.assign_driver_to_delivery(order_id, driver_id)
+        delivery.assign_driver(driver)
         return {"message": f"Driver {driver_id} assigned to order {order_id}"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

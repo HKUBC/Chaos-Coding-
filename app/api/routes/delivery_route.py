@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.model.order import Order
 from app.model.order_status import OrderStatus
+from app.model.delivery_status import DeliveryStatus
 from app.services.delivery_service import DeliveryService
 from app.services.order_service import OrderService
 
@@ -16,10 +17,17 @@ def assign_delivery(order_id: str):
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
 
+    if isinstance(order, dict):
+        row = order
+    else:
+        if order.empty:
+            raise HTTPException(status_code=404, detail="Order not found")
+        row = order.iloc[0]
+
     order = Order(
-        order_id=order["order_id"],
-        customer_id=order["customer_id"],
-        restaurant_id=order["restaurant_id"]
+        order_id=str(row["order_id"]),
+        customer_id=str(row["customer_id"]),
+        restaurant_id=str(row["restaurant_id"])
     )
     order.update_status(OrderStatus.PREPARING)
 
@@ -79,7 +87,7 @@ def update_delivery_status(order_id: str, status: str):
         raise HTTPException(status_code=404, detail="Delivery not found")
 
     try:
-        delivery.status = status
+        delivery.update_status(DeliveryStatus(status.lower()))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
