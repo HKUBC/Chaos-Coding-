@@ -4,7 +4,7 @@ from app.main import app
 client = TestClient(app)
 
 def test_logout_route_success():
-    client.post("/auth/signup", json={"user_id": "user1", "password": "pass123"})
+    client.post("/auth/signup", json={"user_id": "user1", "password": "pass123", "role": "customer"})
     login_response = client.post("/auth/login", json={"user_id": "user1", "password": "pass123"})
     token = login_response.json()["token"]
     response = client.post("/auth/logout", json={"token": token})
