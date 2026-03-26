@@ -37,7 +37,7 @@ def remove_item(order_id: str, item_id: str):
     except ValueError as e:
         raise HTTPException(status_code = 400, detail = str(e))
     
-    return ("message": f"Item {item_id} removed from order {order_id}")
+    return {"message": f"Item {item_id} removed from order {order_id}"}
     
 # this route will get an item from an order
 @router.get("/{order_id}/items/{item_id}")
