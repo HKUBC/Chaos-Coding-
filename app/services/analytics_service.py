@@ -17,8 +17,7 @@ class AnalyticsService:
             data_path = os.path.join(current_dir, "..", "data", "food_delivery.csv")
             self._df = pd.read_csv(data_path)
 
-        # session_orders is injected so the service can count live in-memory orders.
-        # In production this is the OrderRepository._session_orders dict.
+       # session_orders is a dict mapping session_id to list of Order objects, used to count active orders
         self._session_orders: dict = session_orders if session_orders is not None else {}
 
     def get_dashboard(self, restaurant_id: str) -> AnalyticsDashboard:
