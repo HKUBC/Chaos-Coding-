@@ -30,8 +30,49 @@
       font-size: 1.8rem;
     }
 
-    header span {
+    header > span {
       font-size: 2rem;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cart-btn {
+      position: relative;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .cart-btn:hover { background: rgba(255,255,255,0.35); }
+
+    .cart-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: white;
+      color: #e63946;
+      font-size: 0.65rem;
+      font-weight: 700;
+      border-radius: 999px;
+      min-width: 16px;
+      height: 16px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
     }
 
     .container {
@@ -128,6 +169,12 @@
   <header>
     <span>🍔</span>
     <h1>Food Delivery App</h1>
+    <div class="header-right">
+      <a class="cart-btn" href="/frontend/cart.html" title="View Cart">
+        🛒
+        <span class="cart-badge" id="cart-badge"></span>
+      </a>
+    </div>
   </header>
 
   <div class="container">
@@ -146,6 +193,21 @@
 
   <script>
     const API_BASE = 'http://localhost:8000';
+
+    async function loadCartBadge() {
+      const customerId = localStorage.getItem('user_id');
+      if (!customerId) return;
+      try {
+        const res = await fetch(`${API_BASE}/cart/${customerId}`);
+        const cart = await res.json();
+        const count = (cart.items || []).reduce((sum, i) => sum + i.quantity, 0);
+        const badge = document.getElementById('cart-badge');
+        if (count > 0) {
+          badge.textContent = count;
+          badge.style.display = 'flex';
+        }
+      } catch (_) {}
+    }
 
     async function loadRestaurants() {
       const statusEl = document.getElementById('status');
@@ -184,6 +246,7 @@
     }
 
     loadRestaurants();
+    loadCartBadge();
   </script>
 
 </body>
