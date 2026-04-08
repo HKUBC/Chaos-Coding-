@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.api.routes.notification_route import router as notification_router
 from app.api.routes.restaurant_route import router as restaurant_router
 from app.api.routes.analytics_route import router as analytics_router
@@ -9,10 +12,21 @@ from app.api.routes.driver_route import router as driver_router
 from app.api.routes.order_route import router as order_router
 from app.api.routes.auth_route import router as auth_router
 from app.api.routes.menu_route import router as menu_router
+from app.api.routes.cart_route import router as cart_router
+from app.api.routes.payment_route import router as payment_router
 
 from app.services.restaurant_data_loader import load_all_restaurant
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 # Routers include the prefix and tags
 app.include_router(notification_router)
@@ -25,9 +39,11 @@ app.include_router(driver_router)
 app.include_router(order_router)
 app.include_router(auth_router)
 app.include_router(menu_router)
+app.include_router(cart_router)
+app.include_router(payment_router)
 
 @app.get("/")
 def root():
-    return {"message": "Food Delivery API running"}
+    return FileResponse("frontend/index.html")
 
 restaurant_data = load_all_restaurant('app/data/restaurants.csv') #loads the restaurant data from the csv file and stores it in a dictionary, where the key is the restaurant id and the value is the restaurant object
