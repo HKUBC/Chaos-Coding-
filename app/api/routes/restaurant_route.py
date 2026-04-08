@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
+from typing import Optional
 from app.services.restaurant_service import RestaurantService
 from app.repositories.restaurant_repository import RestaurantRepository
 
@@ -51,6 +52,21 @@ async def get_restaurant(restaurant_id: int):
             raise HTTPException(status_code=404, detail="Restaurant not found")
 
         return restaurant
+
+@router.get("/{restaurant_id}/items/filter")
+async def filter_menu_items(
+    restaurant_id: int,
+    food_item: Optional[str] = Query(None),
+    cuisine: Optional[str] = Query(None),
+    min_price: Optional[float] = Query(None),
+    max_price: Optional[float] = Query(None),
+):
+    result = service.filter_items(restaurant_id, food_item, cuisine, None, min_price, max_price)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Restaurant not found or not open")
+
+    return result
 
 # this route method is to get the profile of a restaurant with its menu
 @router.get("/{restaurant_id}/profile")
