@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import MagicMock
 from app.model.item import Item
 from app.model.order import Order
-from app.model.promotion import Promotion
 from app.model.item_promotion import ItemPromotion
 from app.model.order_promotion import OrderPromotion
 from app.services.promotion_service import PromotionService
