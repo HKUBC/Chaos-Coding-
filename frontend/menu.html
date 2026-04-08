@@ -45,6 +45,64 @@
       font-size: 1.6rem;
     }
 
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cart-btn {
+      position: relative;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .cart-btn:hover { background: rgba(255,255,255,0.35); }
+
+    .home-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .home-btn:hover { background: rgba(255,255,255,0.35); }
+
+    .cart-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: white;
+      color: #e63946;
+      font-size: 0.65rem;
+      font-weight: 700;
+      border-radius: 999px;
+      min-width: 16px;
+      height: 16px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
     .restaurant-info {
       background: white;
       border-bottom: 1px solid #eee;
@@ -143,12 +201,14 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      gap: 12px;
     }
 
     .menu-item-left {
       display: flex;
       align-items: center;
       gap: 16px;
+      flex: 1;
     }
 
     .menu-item-icon {
@@ -170,6 +230,28 @@
       font-size: 1.1rem;
       font-weight: 700;
       color: #e63946;
+      white-space: nowrap;
+    }
+
+    .add-to-cart-btn {
+      padding: 8px 16px;
+      background: #e63946;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+
+    .add-to-cart-btn:hover { background: #c1121f; }
+    .add-to-cart-btn:active { transform: scale(0.96); }
+    .add-to-cart-btn.added {
+      background: #2d6a4f;
+      pointer-events: none;
     }
 
     .status {
@@ -204,6 +286,13 @@
     <button class="back-btn" onclick="window.location.href='/'">&#8592;</button>
     <span>🍽️</span>
     <h1 id="header-title">Restaurant Menu</h1>
+    <div class="header-right">
+      <a class="home-btn" href="/frontend/index.html">🏠 Home</a>
+      <a class="cart-btn" href="/frontend/cart.html" title="View Cart">
+        🛒
+        <span class="cart-badge" id="cart-badge"></span>
+      </a>
+    </div>
   </header>
 
   <div class="restaurant-info" id="restaurant-info" style="display:none;">
@@ -250,6 +339,8 @@
 
     if (!restaurantId) window.location.href = '/';
 
+    const customerId = localStorage.getItem('user_id');
+
     const foodIcons = ['🍕', '🍔', '🌮', '🍜', '🍱', '🥗', '🍣', '🥘', '🌯', '🍛'];
     function iconForItem(name) {
       const n = name.toLowerCase();
@@ -263,6 +354,61 @@
       if (n.includes('cake') || n.includes('dessert')) return '🍰';
       if (n.includes('soup')) return '🍲';
       return foodIcons[Math.floor(Math.random() * foodIcons.length)];
+    }
+
+    async function loadCartBadge() {
+      if (!customerId) return;
+      try {
+        const res = await fetch(`${API_BASE}/cart/${customerId}`);
+        const cart = await res.json();
+        const count = (cart.items || []).reduce((sum, i) => sum + i.quantity, 0);
+        const badge = document.getElementById('cart-badge');
+        if (count > 0) {
+          badge.textContent = count;
+          badge.style.display = 'flex';
+        }
+      } catch (_) {}
+    }
+
+    async function addToCart(itemId, name, price, btn) {
+      if (!customerId) {
+        window.location.href = '/frontend/login.html';
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Adding…';
+      try {
+        const res = await fetch(`${API_BASE}/cart/${customerId}/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            item_id: itemId,
+            name: name,
+            price: parseFloat(price),
+            quantity: 1,
+            restaurant_id: String(restaurantId)
+          })
+        });
+        if (res.ok) {
+          btn.textContent = 'Added ✓';
+          btn.classList.add('added');
+          loadCartBadge();
+          setTimeout(() => {
+            btn.textContent = '+ Add to Cart';
+            btn.classList.remove('added');
+            btn.disabled = false;
+          }, 1500);
+        } else {
+          const data = await res.json();
+          alert(data.detail || 'Failed to add item.');
+          btn.textContent = '+ Add to Cart';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        alert('Could not connect to server.');
+        btn.textContent = '+ Add to Cart';
+        btn.disabled = false;
+      }
     }
 
     function renderItems(items) {
@@ -281,19 +427,29 @@
         return;
       }
 
-      items.forEach(item => {
+      items.forEach((item, idx) => {
+        const name  = item.food_item;
+        const price = parseFloat(item.order_value);
+        const itemId = `${restaurantId}_${name.replace(/\s+/g, '_').toLowerCase()}`;
+
         const row = document.createElement('div');
         row.className = 'menu-item';
         row.innerHTML = `
           <div class="menu-item-left">
-            <span class="menu-item-icon">${iconForItem(item.food_item)}</span>
+            <span class="menu-item-icon">${iconForItem(name)}</span>
             <div>
-              <div class="menu-item-name">${item.food_item}</div>
+              <div class="menu-item-name">${name}</div>
               <div class="menu-item-cuisine">${item.preferred_cuisine}</div>
             </div>
           </div>
-          <div class="menu-item-price">$${parseFloat(item.order_value).toFixed(2)}</div>
+          <div class="menu-item-price">$${price.toFixed(2)}</div>
+          <button class="add-to-cart-btn" id="btn-${idx}">+ Add to Cart</button>
         `;
+
+        row.querySelector(`#btn-${idx}`).addEventListener('click', function() {
+          addToCart(itemId, name, price, this);
+        });
+
         menuEl.appendChild(row);
       });
     }
@@ -312,7 +468,6 @@
 
         const data = await res.json();
 
-        // Show restaurant info bar
         const r = data.restaurant;
         if (r) {
           document.getElementById('info-cuisine').textContent = r.preferred_cuisine || '—';
@@ -368,7 +523,6 @@
       loadMenu();
     }
 
-    // Allow pressing Enter in any filter input to trigger search
     document.querySelectorAll('.filters input').forEach(input => {
       input.addEventListener('keydown', e => {
         if (e.key === 'Enter') applyFilters();
@@ -376,6 +530,7 @@
     });
 
     loadMenu();
+    loadCartBadge();
   </script>
 
 </body>
