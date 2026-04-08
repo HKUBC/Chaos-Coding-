@@ -171,6 +171,9 @@
             <div class="card-title">Restaurant #${id}</div>
             <div class="card-subtitle">ID: ${id}</div>
           `;
+          card.addEventListener('click', () => {
+            window.location.href = `/frontend/menu.html?id=${id}`;
+          });
           gridEl.appendChild(card);
         });
 
