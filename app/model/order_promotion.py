@@ -2,15 +2,15 @@ from app.model.promotion import Promotion
 from app.model.order import Order
 
 class OrderPromotion(Promotion):
-    def __init__(self, promo_id: str, discount_type: str, value: float, min_total = 0):
+    def __init__(self, promo_id: str, promo_type: str, value: float, min_total = 0):
         """
-        discount_types: 'percent' or 'fixed'
+        promo_type: 'percent' or 'fixed'
         value: use decimal for percent (0.2 for 20% off) or dollar amount for fixed (5 for $5 off)
         min_total: minimum that the order total must be for the promotion to apply
         """
 
         super().__init__(promo_id)
-        self.discount_type = discount_type
+        self.promo_type = promo_type
         self.value = value
         self.min_total = min_total
 
