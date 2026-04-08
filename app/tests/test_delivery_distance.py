@@ -19,17 +19,20 @@ def delivery_service():
 # ----- Test cases for DeliveryService class -----
 # Test that the delivery_distance method returns the correct delivery for a valid order
 def test_delivery_distance_with_valid_id(delivery_service, order_example):
-    with patch("app.services.delivery_service.repo") as mock_repo:
-        mock_repo.deliveries = {}
-        mock_repo.get_delivery_distance.return_value = 10
-        delivery_service.assign_delivery(order_example)
-        delivery_distance = delivery_service.get_delivery_distance(order_example.order_id)
+    service = DeliveryService()
+
+    with patch.object(service.repo, "get_delivery_distance", return_value=10):
+        service.assign_delivery(order_example)
+
+        delivery_distance = service.get_delivery_distance(order_example.order_id)
+
         assert delivery_distance == 10
 
 # Test that the delivery_distance method returns None for an invalid order id
-def test_delivery_distance_with_invalid_id(delivery_service):
-    with patch("app.services.delivery_service.repo") as mock_repo:
-        mock_repo.deliveries = {}
-        mock_repo.get_delivery_distance.return_value = None
-        delivery_distance = delivery_service.get_delivery_distance("invalid_id")
+def test_delivery_distance_with_invalid_id():
+    service = DeliveryService()
+
+    with patch.object(service.repo, "get_delivery_distance", return_value=None):
+        delivery_distance = service.get_delivery_distance("invalid_id")
+
         assert delivery_distance is None

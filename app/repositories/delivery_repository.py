@@ -20,16 +20,9 @@ class DeliveryRepository:
     # Returns the delivery time for a given order id
     def get_delivery_time(self, order_id: str):
         data = self.get_delivery_by_order_id(order_id)
-
-        if data:
-            return data.get("delivery_time", None)
-        return None
+        return data.get("delivery_time") if data else None
     
     # Returns the delivery distance for a given order id
     def get_delivery_distance(self, order_id: str):
         data = self.get_delivery_by_order_id(order_id)
-
-        if data:
-            return data.get("delivery_distance", None)
-        return None
-    
+        return data.get("delivery_distance") if data else None
