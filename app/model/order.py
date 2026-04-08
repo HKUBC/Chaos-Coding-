@@ -33,8 +33,19 @@ class Order:
         return next((item for item in self.items
                         if item.item_id == item_id), None)
 
-    def order_total(self) -> float:
-        return sum(item.total_price() for item in self.items)
+    def order_total(self, promotion_service=None) -> float:
+        total = 0
+
+        for item in self.items:
+            if promotion_service:
+                total += promotion_service.apply_item_promotion(item)
+            else:
+                total += item.total_price()
+
+        if promotion_service:
+            total = promotion_service.apply_order_promotion(self, total)
+
+        return total
 
     def update_status(self, new_status: OrderStatus):
         self.status = new_status
