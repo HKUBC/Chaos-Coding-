@@ -15,6 +15,7 @@ class OrderService:
     # Creates a new order by using an order_id, customer_id, and restaurant_id
     def create_order(self, order_id: str, customer_id: str, restaurant_id: str) -> Order:
         order = Order(order_id, customer_id, restaurant_id)
+        repo.save(order)
         return order
 
     # Starts an order — requires a valid session token if auth is enabled
@@ -26,9 +27,13 @@ class OrderService:
         order.start_order()
         repo.save(order)
         return order
+    
+    # Updates an existing order in the repository
+    def update_order(self, order: Order) -> None:
+        repo.save(order)
 
     # Retrieves an order by its order_id
-    def get_order(self, order_id: str) -> pd.DataFrame:
+    def get_order(self, order_id: str) -> Order | None:
         return repo.get_order_by_id(order_id)
 
     # Retrieves all orders associated with a specific customer_id
