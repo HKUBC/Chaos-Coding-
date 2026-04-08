@@ -7,6 +7,8 @@ from app.api.routes.auth_route import router as auth_router
 from app.api.routes.order_route import router as order_router
 from app.api.routes.menu_route import router as menu_router
 from app.api.routes.analytics_route import router as analytics_router
+from app.api.routes.cart_route import router as cart_router
+from app.api.routes.payment_route import router as payment_router
 
 from app.services.restaurant_data_loader import load_all_restaurant
 
@@ -21,6 +23,8 @@ app.include_router(auth_router)
 app.include_router(order_router)
 app.include_router(menu_router)
 app.include_router(analytics_router)
+app.include_router(cart_router)
+app.include_router(payment_router)
 
 @app.get("/")
 def root():
