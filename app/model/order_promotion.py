@@ -21,10 +21,10 @@ class OrderPromotion(Promotion):
         if total < self.min_total:
             return total
 
-        if self.discount_type == "percent":
+        if self.promo_type == "percent":
             return round(total * (1 - self.value), 2)       # round to 2 decimal places for currency
         
-        if self.discount_type == "fixed":
+        if self.promo_type == "fixed":
             return max(0, round(total - self.value, 2))     # don't allow negative prices
         
         return total
