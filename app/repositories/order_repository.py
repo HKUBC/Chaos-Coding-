@@ -11,11 +11,21 @@ class OrderRepository:
 
     # Creates a new order by using an order_id
     def get_order_by_id(self, order_id: str):
-        return self.df[self.df["order_id"] == order_id]
+        for orders in self._session_orders.values():
+            for order in orders:
+                if order.order_id == order_id:
+                    return order
+                
+        return None
 
     # Retrieves all orders associated with a specific customer_id
     def get_orders_by_customer(self, customer_id: str):
-        return self.df[self.df["customer_id"] == customer_id]
+        for orders in self._session_orders.values():
+            for order in orders:
+                if order.customer_id == customer_id:
+                    return order
+                
+        return None
     
     # Retrieves all orders associated with a specific restaurant_id
     def save(self, order) -> None:

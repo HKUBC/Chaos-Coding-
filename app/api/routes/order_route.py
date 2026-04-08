@@ -17,6 +17,22 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 delivery_service = DeliveryService()
 order_service = OrderService()
 
+# This route will create a new order
+@router.post("/{order_id}/create")
+def create_order(order_id: str, customer_id: str, restaurant_id: str):
+    existing_order = order_service.get_order(order_id)
+
+    if existing_order is not None:
+        raise HTTPException(status_code = 400, detail = "Order with this ID already exists")
+    
+    order = order_service.create_order(
+        order_id = order_id,
+        customer_id = customer_id,
+        restaurant_id = restaurant_id
+    )
+
+    return {"message": f"Order {order_id} created successfully"}
+
 # This route will add an item to an order
 @router.post("/{order_id}/add_item")
 def add_item(order_id: str, request: ItemRequest):
@@ -34,6 +50,8 @@ def add_item(order_id: str, request: ItemRequest):
             restaurant_id=request.restaurant_id
         )
         order.add_item(item)
+
+        order_service.update_order(order)
     except ValueError as e:
         raise HTTPException(status_code = 400, detail = str(e))
 
@@ -75,23 +93,23 @@ def get_item(order_id: str, item_id: str):
         "item_restaurant_id": item.restaurant_id
     }
 
-# This router starts an order
-@router.post("/{order_id}/start")
-def start_order(order_id: str):
+# This router places an order
+@router.patch("/{order_id}/place")
+def place_order(order_id: str):
     order = order_service.get_order(order_id)
-
+    
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
 
     try:
-        order.start_order()
+        order_service.place_order(order)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
     return {"message": f"Order {order_id} has started successfully"}
 
 # This router cancels an order
-@router.post("/{order_id}/cancel")
+@router.patch("/{order_id}/cancel")
 def cancel_order(order_id: str):
     order = order_service.get_order(order_id)
 
