@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Food Delivery App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #e63946;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 { font-size: 1.8rem; }
+    header span { font-size: 2rem; }
+
+    .page-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 40px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 6px;
+    }
+
+    .card .subtitle {
+      font-size: 0.88rem;
+      color: #888;
+      margin-bottom: 28px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #333;
+      background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #e63946;
+      box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.12);
+      background: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background-color: #e63946;
+      color: white;
+      margin-top: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { background-color: #c1121f; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background-color: #f4a0a7; cursor: not-allowed; }
+
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 18px;
+      display: none;
+    }
+
+    .alert.error {
+      background: #fff0f1;
+      border: 1px solid #f4a0a7;
+      color: #c1121f;
+    }
+
+    .alert.success {
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      color: #276749;
+    }
+
+    .link-row {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #888;
+    }
+
+    .link-row a {
+      color: #e63946;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .link-row a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span>🍔</span>
+    <h1>Food Delivery App</h1>
+  </header>
+
+  <div class="page-center">
+    <div class="card">
+      <h2>Welcome back</h2>
+      <p class="subtitle">Sign in to your account to continue</p>
+
+      <div class="alert" id="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="user_id">Username</label>
+          <input type="text" id="user_id" placeholder="Enter your username" autocomplete="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
+        </div>
+
+        <button type="submit" class="btn" id="login-btn">Sign In</button>
+      </form>
+
+      <div class="link-row">
+        Don't have an account? <a href="/frontend/signup.html">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000';
+
+    function showAlert(message, type) {
+      const el = document.getElementById('alert');
+      el.textContent = message;
+      el.className = `alert ${type}`;
+      el.style.display = 'block';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const user_id  = document.getElementById('user_id').value.trim();
+      const password = document.getElementById('password').value;
+      const btn      = document.getElementById('login-btn');
+
+      if (!user_id || !password) {
+        showAlert('Please fill in all fields.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showAlert(data.detail || 'Login failed. Please try again.', 'error');
+          return;
+        }
+
+        // Store token and redirect
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user_id', user_id);
+        showAlert('Login successful! Redirecting…', 'success');
+        setTimeout(() => { window.location.href = '/frontend/index.html'; }, 800);
+
+      } catch (err) {
+        showAlert('Could not connect to the server.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+
+</body>
+</html>
