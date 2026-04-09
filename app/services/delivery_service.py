@@ -1,16 +1,16 @@
 from app.model.delivery import Delivery
 from app.repositories.delivery_repository import DeliveryRepository
 from app.model.order import Order
+from app.tests.test_order_add_item import order
 
 # Shared repository — all service instances use the same in-memory store
 _repo = DeliveryRepository()
 
 class DeliveryService:
-    """
-    Responsible for manging the deliveries and ensures that each order has at most one delivery.
-    """
+    
+    
     def __init__(self):
-        self.repo = _repo
+        self.repo = DeliveryRepository()
 
     # Assigns a delivery to an order if the order is in the PREPARING status and doesn't already have a delivery assigned
     def assign_delivery(self, order: Order) -> Delivery | None:

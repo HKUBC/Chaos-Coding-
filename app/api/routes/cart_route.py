@@ -57,6 +57,7 @@ def add_item(customer_id: str, request: CartItemRequest):
             quantity=request.quantity,
             restaurant_id=request.restaurant_id,
         )
+        cart_service.clear_cart(customer_id)  # ensure test isolation
         cart = cart_service.add_item(customer_id, request.restaurant_id, item)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
