@@ -260,8 +260,6 @@
       <h1>Food Delivery App</h1>
     </div>
     <div class="header-actions" id="header-actions"></div>
-    <span>🍔</span>
-    <h1>Food Delivery App</h1>
     <div class="header-right">
       <a class="cart-btn" href="/frontend/cart.html" title="View Cart">
         🛒
@@ -298,17 +296,42 @@
     const API_BASE = 'http://localhost:8000';
     let allIds = [];
 
-    // Header auth state
-    (function() {
-      const actionsEl = document.getElementById('header-actions');
-      const token  = localStorage.getItem('token');
-      const userId = localStorage.getItem('user_id');
-      const role   = localStorage.getItem('role');
-    async function loadCartBadge() {
-      const customerId = localStorage.getItem('user_id');
-      if (!customerId) return;
+    // ── Header auth state ─────────────────────────────────────────────────
+    const actionsEl = document.getElementById('header-actions');
+    const token  = localStorage.getItem('token');
+    const userId = localStorage.getItem('user_id');
+    const role   = localStorage.getItem('role');
+
+    if (token) {
+      actionsEl.innerHTML = `
+        <span style="color:white;font-size:0.85rem;opacity:0.9;background:rgba(255,255,255,0.18);padding:6px 14px;border-radius:20px;">👤 ${userId}</span>
+        <button onclick="handleLogout()" style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);color:white;font-size:0.85rem;font-weight:600;cursor:pointer;padding:7px 18px;border-radius:8px;">Sign Out</button>
+      `;
+    } else {
+      actionsEl.innerHTML = `
+        <a href="/frontend/login.html" style="color:white;font-size:0.85rem;font-weight:600;text-decoration:none;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);padding:7px 18px;border-radius:8px;">Sign In</a>
+      `;
+    }
+
+    async function handleLogout() {
+      const t = localStorage.getItem('token');
       try {
-        const res = await fetch(`${API_BASE}/cart/${customerId}`);
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: t })
+        });
+      } finally {
+        localStorage.clear();
+        window.location.reload();
+      }
+    }
+
+    // ── Cart badge ────────────────────────────────────────────────────────
+    async function loadCartBadge() {
+      if (!userId) return;
+      try {
+        const res = await fetch(`${API_BASE}/cart/${userId}`);
         const cart = await res.json();
         const count = (cart.items || []).reduce((sum, i) => sum + i.quantity, 0);
         const badge = document.getElementById('cart-badge');
@@ -319,40 +342,7 @@
       } catch (_) {}
     }
 
-    async function loadRestaurants() {
-      const statusEl = document.getElementById('status');
-      const gridEl = document.getElementById('restaurant-grid');
-      const countEl = document.getElementById('count');
-
-      if (token) {
-        actionsEl.innerHTML = `
-          <span style="color:white;font-size:0.85rem;opacity:0.9;background:rgba(255,255,255,0.18);padding:6px 14px;border-radius:20px;">👤 ${userId}</span>
-          <button onclick="handleLogout()" style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);color:white;font-size:0.85rem;font-weight:600;cursor:pointer;padding:7px 18px;border-radius:8px;">Sign Out</button>
-        `;
-        if (role === 'restaurant_owner') {
-          window.location.href = '/frontend/dashboard.html';
-        }
-      } else {
-        actionsEl.innerHTML = `
-          <a href="/frontend/login.html" style="color:white;font-size:0.85rem;font-weight:600;text-decoration:none;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);padding:7px 18px;border-radius:8px;">Sign In</a>
-        `;
-      }
-    })();
-
-    async function handleLogout() {
-      const token = localStorage.getItem('token');
-      try {
-        await fetch(`${API_BASE}/auth/logout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
-        });
-      } finally {
-        localStorage.clear();
-        window.location.reload();
-      }
-    }
-
+    // ── Restaurants ───────────────────────────────────────────────────────
     function renderCards(ids) {
       const gridEl  = document.getElementById('restaurant-grid');
       const countEl = document.getElementById('count');
@@ -390,7 +380,7 @@
       }
     }
 
-    // Live search filter
+    // ── Live search ───────────────────────────────────────────────────────
     document.getElementById('search-input').addEventListener('input', e => {
       const q = e.target.value.trim().toLowerCase();
       const filtered = q ? allIds.filter(id => String(id).includes(q)) : allIds;

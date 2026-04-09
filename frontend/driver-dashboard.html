@@ -521,11 +521,16 @@
         });
       } catch (_) {}
 
-      initMap();
+      try { initMap(); } catch (e) {
+        document.getElementById('map').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;font-size:0.9rem;">Map unavailable</div>';
+      }
       loadNotifications();
       loadRestaurants();
       loadAvailableDeliveries();
       loadHistory();
+
+      // Auto-refresh deliveries every 5 seconds so new customer orders appear
+      setInterval(loadAvailableDeliveries, 5000);
     }
 
     // ── MAP ───────────────────────────────────────────────────────────────
@@ -593,6 +598,7 @@
       const el = document.getElementById('notif-list');
       try {
         const res  = await fetch(`${API_BASE}/notifications/${driverId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const notifs = Array.isArray(data) ? data : (data.notifications || []);
 
@@ -616,8 +622,8 @@
           `;
           el.appendChild(div);
         });
-      } catch (_) {
-        el.innerHTML = '<div class="empty">Could not load notifications.</div>';
+      } catch (e) {
+        el.innerHTML = '<div class="empty"><div class="empty-icon">🔕</div>No new notifications</div>';
       }
     }
 
@@ -626,13 +632,20 @@
       const el = document.getElementById('restaurant-list');
       try {
         const res  = await fetch(`${API_BASE}/restaurants/all_restaurants`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const ids  = await res.json();
+        const list = Array.isArray(ids) ? ids : [];
 
-        document.getElementById('stat-restaurants').textContent = ids.length;
-        addRestaurantMarkers(ids);
+        document.getElementById('stat-restaurants').textContent = list.length;
+        if (list.length > 0) addRestaurantMarkers(list);
 
         el.innerHTML = '';
-        ids.slice(0, 10).forEach(id => {
+        if (list.length === 0) {
+          el.innerHTML = '<div class="empty">No restaurants found.</div>';
+          return;
+        }
+
+        list.slice(0, 10).forEach(id => {
           const div = document.createElement('div');
           div.className = 'restaurant-item';
           div.innerHTML = `
@@ -645,10 +658,10 @@
           el.appendChild(div);
         });
 
-        if (ids.length > 10) {
-          el.innerHTML += `<div style="text-align:center;font-size:0.8rem;color:#aaa;padding:8px 0;">+${ids.length - 10} more restaurants</div>`;
+        if (list.length > 10) {
+          el.innerHTML += `<div style="text-align:center;font-size:0.8rem;color:#aaa;padding:8px 0;">+${list.length - 10} more restaurants</div>`;
         }
-      } catch (_) {
+      } catch (e) {
         el.innerHTML = '<div class="empty">Could not load restaurants.</div>';
       }
     }
@@ -660,11 +673,15 @@
 
       try {
         const res = await fetch(`${API_BASE}/deliveries/`);
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          el.innerHTML = `<div class="empty">Server error (${res.status}) loading deliveries. Is the server running?</div>`;
+          return;
+        }
         const all = await res.json();
+        const list = Array.isArray(all) ? all : [];
 
-        // Show only pending deliveries (not yet accepted by any driver)
-        const pending = all.filter(d => d.status === 'pending');
+        // Show only pending deliveries (not yet accepted)
+        const pending = list.filter(d => d.status === 'pending');
 
         activeDeliveries = pending;
         document.getElementById('delivery-count').textContent = pending.length;
@@ -676,14 +693,15 @@
           el.innerHTML = `
             <div class="empty">
               <div class="empty-icon">📭</div>
-              No pending deliveries right now. Check back soon!
+              No pending deliveries right now.<br/>
+              <span style="font-size:0.78rem;color:#aaa;">Orders from customers will appear here automatically.</span>
             </div>`;
           return;
         }
 
         pending.forEach(d => renderDeliveryItem(el, d));
-      } catch (_) {
-        el.innerHTML = '<div class="empty">Could not load deliveries.</div>';
+      } catch (e) {
+        el.innerHTML = `<div class="empty">Could not reach server. Is it running on port 8000?</div>`;
       }
     }
 

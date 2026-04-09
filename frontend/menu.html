@@ -256,6 +256,122 @@
       white-space: nowrap;
     }
 
+    .menu-card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      min-width: 110px;
+    }
+
+    .btn-add {
+      padding: 7px 16px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-add:hover { background: var(--red-dark); }
+    .btn-add:active { transform: scale(0.97); }
+    .btn-add:disabled { background: #f4a0a7; cursor: not-allowed; }
+
+    .qty-ctrl {
+      display: none;
+      align-items: center;
+      gap: 0;
+      border: 1.5px solid var(--red);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .qty-ctrl.visible { display: flex; }
+
+    .qty-btn {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: var(--red);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .qty-btn:hover { background: var(--red-dark); }
+    .qty-btn:disabled { background: #f4a0a7; cursor: not-allowed; }
+
+    .qty-val {
+      min-width: 28px;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--red);
+      background: white;
+      padding: 0 4px;
+      line-height: 30px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .home-btn {
+      background: rgba(255,255,255,0.18);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 7px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .home-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .cart-btn {
+      position: relative;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 7px 12px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .cart-btn:hover { background: rgba(255,255,255,0.35); }
+
+    .cart-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: white;
+      color: #e63946;
+      font-size: 0.65rem;
+      font-weight: 700;
+      border-radius: 999px;
+      min-width: 16px;
+      height: 16px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
     /* ── Status ── */
     .status {
       text-align: center;
@@ -355,6 +471,8 @@
     const restaurantId = params.get('id');
     if (!restaurantId) window.location.href = '/';
 
+    const customerId = localStorage.getItem('user_id');
+
     const foodIcons = ['🍕','🍔','🌮','🍜','🍱','🥗','🍣','🥘','🌯','🍛'];
     function iconForItem(name) {
       const n = name.toLowerCase();
@@ -384,11 +502,26 @@
       } catch (_) {}
     }
 
-    async function addToCart(itemId, name, price, btn) {
+    // Show qty controls, hide Add button
+    function showQtyCtrl(card, qty) {
+      card.querySelector('.btn-add').style.display = 'none';
+      const ctrl = card.querySelector('.qty-ctrl');
+      ctrl.querySelector('.qty-val').textContent = qty;
+      ctrl.classList.add('visible');
+    }
+
+    // Hide qty controls, show Add button
+    function showAddBtn(card) {
+      card.querySelector('.btn-add').style.display = '';
+      card.querySelector('.qty-ctrl').classList.remove('visible');
+    }
+
+    async function addToCart(itemId, name, price, card) {
       if (!customerId) {
         window.location.href = '/frontend/login.html';
         return;
       }
+      const btn = card.querySelector('.btn-add');
       btn.disabled = true;
       btn.textContent = 'Adding…';
       try {
@@ -404,24 +537,53 @@
           })
         });
         if (res.ok) {
-          btn.textContent = 'Added ✓';
-          btn.classList.add('added');
+          showQtyCtrl(card, 1);
           loadCartBadge();
-          setTimeout(() => {
-            btn.textContent = '+ Add to Cart';
-            btn.classList.remove('added');
-            btn.disabled = false;
-          }, 1500);
         } else {
           const data = await res.json();
           alert(data.detail || 'Failed to add item.');
-          btn.textContent = '+ Add to Cart';
-          btn.disabled = false;
         }
       } catch (err) {
         alert('Could not connect to server.');
-        btn.textContent = '+ Add to Cart';
+      } finally {
         btn.disabled = false;
+        btn.textContent = '+ Add';
+      }
+    }
+
+    async function updateQty(itemId, name, price, card, delta) {
+      const valEl = card.querySelector('.qty-val');
+      const minusBtn = card.querySelector('.qty-minus');
+      const plusBtn  = card.querySelector('.qty-plus');
+      const newQty = parseInt(valEl.textContent) + delta;
+      minusBtn.disabled = true;
+      plusBtn.disabled  = true;
+
+      try {
+        if (newQty <= 0) {
+          // Remove from cart
+          const res = await fetch(`${API_BASE}/cart/${customerId}/remove/${itemId}`, { method: 'DELETE' });
+          if (res.ok) {
+            showAddBtn(card);
+            loadCartBadge();
+          }
+        } else {
+          // Update quantity
+          const res = await fetch(`${API_BASE}/cart/${customerId}/update/${itemId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: newQty })
+          });
+          if (res.ok) {
+            valEl.textContent = newQty;
+            loadCartBadge();
+          }
+        }
+      } catch (err) {
+        alert('Could not connect to server.');
+      } finally {
+        minusBtn.disabled = false;
+        plusBtn.disabled  = false;
       }
     }
 
@@ -443,16 +605,33 @@
       }
 
       items.forEach(item => {
+        const itemId = item.item_id || item.food_item;
+        const price  = parseFloat(item.order_value).toFixed(2);
+        const name   = item.food_item;
+
         const card = document.createElement('div');
         card.className = 'menu-card';
         card.innerHTML = `
-          <div class="menu-card-icon">${iconForItem(item.food_item)}</div>
+          <div class="menu-card-icon">${iconForItem(name)}</div>
           <div class="menu-card-body">
-            <div class="menu-card-name">${item.food_item}</div>
+            <div class="menu-card-name">${name}</div>
             <div class="menu-card-cuisine">${item.preferred_cuisine}</div>
           </div>
-          <div class="menu-card-price">$${parseFloat(item.order_value).toFixed(2)}</div>
+          <div class="menu-card-right">
+            <div class="menu-card-price">$${price}</div>
+            <button class="btn-add">+ Add</button>
+            <div class="qty-ctrl">
+              <button class="qty-btn qty-minus">−</button>
+              <span class="qty-val">1</span>
+              <button class="qty-btn qty-plus">+</button>
+            </div>
+          </div>
         `;
+
+        card.querySelector('.btn-add').addEventListener('click', () => addToCart(itemId, name, price, card));
+        card.querySelector('.qty-minus').addEventListener('click', () => updateQty(itemId, name, price, card, -1));
+        card.querySelector('.qty-plus').addEventListener('click',  () => updateQty(itemId, name, price, card,  1));
+
         menuEl.appendChild(card);
       });
     }

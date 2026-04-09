@@ -60,7 +60,7 @@
       border-radius: 12px;
       padding: 40px 44px;
       width: 100%;
-      max-width: 460px;
+      max-width: 540px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
@@ -192,6 +192,26 @@
     }
 
     .link-row a:hover { text-decoration: underline; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #bbb;
+      margin: 20px 0 12px;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 16px;
+    }
+
+    .role-section { display: none; }
+    .role-section.visible { display: block; }
   </style>
 </head>
 <body>
@@ -240,19 +260,70 @@
           </div>
         </div>
 
+        <!-- Personal info -->
+        <div class="section-label">Personal Information</div>
+
+        <div class="form-group">
+          <label for="full_name">Full Name</label>
+          <input type="text" id="full_name" placeholder="Jane Smith" autocomplete="name" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="jane@example.com" autocomplete="email" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="+1 (555) 000-0000" autocomplete="tel" required />
+          </div>
+        </div>
+
+        <!-- Account credentials -->
+        <div class="section-label">Account Credentials</div>
+
         <div class="form-group">
           <label for="user_id">Username</label>
           <input type="text" id="user_id" placeholder="Choose a username" autocomplete="username" required />
         </div>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Choose a password" autocomplete="new-password" required />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Choose a password" autocomplete="new-password" required />
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" placeholder="Re-enter password" autocomplete="new-password" required />
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="confirm_password">Confirm Password</label>
-          <input type="password" id="confirm_password" placeholder="Re-enter your password" autocomplete="new-password" required />
+        <!-- Restaurant owner extras -->
+        <div class="role-section" id="section-owner">
+          <div class="section-label">Restaurant Details</div>
+          <div class="form-group">
+            <label for="restaurant_name">Restaurant Name</label>
+            <input type="text" id="restaurant_name" placeholder="e.g. Mario's Pizzeria" />
+          </div>
+          <div class="form-group">
+            <label for="restaurant_id">Restaurant ID <span style="font-weight:400;color:#aaa;">(numeric)</span></label>
+            <input type="number" id="restaurant_id" placeholder="e.g. 1042" min="1" />
+          </div>
+        </div>
+
+        <!-- Driver extras -->
+        <div class="role-section" id="section-driver">
+          <div class="section-label">Vehicle Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="vehicle">Vehicle Type</label>
+              <input type="text" id="vehicle" placeholder="e.g. Toyota Corolla" />
+            </div>
+            <div class="form-group">
+              <label for="license_plate">License Plate</label>
+              <input type="text" id="license_plate" placeholder="e.g. ABC-1234" />
+            </div>
+          </div>
         </div>
 
         <button type="submit" class="btn" id="signup-btn">Create Account</button>
@@ -274,23 +345,58 @@
       el.style.display = 'block';
     }
 
+    // Show/hide role-specific sections when role changes
+    function updateRoleSections() {
+      const role = document.querySelector('input[name="role"]:checked').value;
+      document.getElementById('section-owner').classList.toggle('visible', role === 'restaurant_owner');
+      document.getElementById('section-driver').classList.toggle('visible', role === 'driver');
+    }
+
+    document.querySelectorAll('input[name="role"]').forEach(r => {
+      r.addEventListener('change', updateRoleSections);
+    });
+
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const full_name        = document.getElementById('full_name').value.trim();
+      const email            = document.getElementById('email').value.trim();
+      const phone            = document.getElementById('phone').value.trim();
       const user_id          = document.getElementById('user_id').value.trim();
       const password         = document.getElementById('password').value;
       const confirm_password = document.getElementById('confirm_password').value;
       const role             = document.querySelector('input[name="role"]:checked').value;
       const btn              = document.getElementById('signup-btn');
 
-      if (!user_id || !password || !confirm_password) {
-        showAlert('Please fill in all fields.', 'error');
+      if (!full_name || !email || !phone || !user_id || !password || !confirm_password) {
+        showAlert('Please fill in all required fields.', 'error');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showAlert('Please enter a valid email address.', 'error');
         return;
       }
 
       if (password !== confirm_password) {
         showAlert('Passwords do not match.', 'error');
         return;
+      }
+
+      const payload = { user_id, password, role, full_name, email, phone };
+
+      if (role === 'restaurant_owner') {
+        const rid = document.getElementById('restaurant_id').value.trim();
+        const rname = document.getElementById('restaurant_name').value.trim();
+        if (rid) payload.restaurant_id = parseInt(rid, 10);
+        if (rname) payload.restaurant_name = rname;
+      }
+
+      if (role === 'driver') {
+        const vehicle = document.getElementById('vehicle').value.trim();
+        const plate   = document.getElementById('license_plate').value.trim();
+        if (vehicle) payload.vehicle = vehicle;
+        if (plate)   payload.license_plate = plate;
       }
 
       btn.disabled = true;
@@ -300,7 +406,7 @@
         const res = await fetch(`${API_BASE}/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id, password, role })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json();
@@ -308,7 +414,6 @@
         if (!res.ok) {
           const msg = data.detail || 'Sign up failed. Please try again.';
           showAlert(msg, 'error');
-          // Highlight the username field if it's a duplicate
           if (msg.toLowerCase().includes('taken') || msg.toLowerCase().includes('already')) {
             const input = document.getElementById('user_id');
             input.style.borderColor = '#e63946';

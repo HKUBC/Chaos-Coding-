@@ -4,11 +4,15 @@ from enum import Enum
 #This file defines the Notification model which represents a single notification sent to a user or restaurant. 
 #It includes the notification type, message, metadata, timestamp, and read status.
 class NotificationType(Enum):
-    ORDER_RECEIVED    = "order_received"
-    ORDER_STATUS      = "order_status"
-    PAYMENT_PROCESSED = "payment_processed"
-    PAYMENT_DECLINED  = "payment_declined"
-    MENU_UPDATED      = "menu_updated"
+    ORDER_RECEIVED      = "order_received"
+    ORDER_STATUS        = "order_status"
+    PAYMENT_PROCESSED   = "payment_processed"
+    PAYMENT_DECLINED    = "payment_declined"
+    MENU_UPDATED        = "menu_updated"
+    DELIVERY_AVAILABLE  = "delivery_available"
+    DRIVER_FOUND        = "driver_found"
+    ORDER_PICKED_UP     = "order_picked_up"
+    ORDER_DELIVERED     = "order_delivered"
 
 
 class Notification:
