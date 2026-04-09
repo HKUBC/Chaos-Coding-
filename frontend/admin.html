@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – Food Delivery App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1a1a2e;
+      --accent:  #e63946;
+      --accent2: #c1121f;
+      --bg:      #f1f5f9;
+      --card:    #ffffff;
+      --text:    #1e293b;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --green:   #16a34a;
+      --red:     #dc2626;
+      --sidebar: 240px;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar);
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-brand h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .sidebar-brand .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      transition: background 0.15s, color 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
+
+    .nav-item.active {
+      background: rgba(230,57,70,0.18);
+      color: white;
+      border-left-color: var(--accent);
+    }
+
+    .nav-item .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .logout-btn {
+      display: block;
+      width: 100%;
+      padding: 9px 14px;
+      background: rgba(230,57,70,0.2);
+      border: 1px solid rgba(230,57,70,0.4);
+      color: #fca5a5;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 10px;
+      transition: background 0.15s;
+    }
+
+    .logout-btn:hover { background: rgba(230,57,70,0.35); }
+
+    /* ── Main content ── */
+    .main {
+      margin-left: var(--sidebar);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar h2 { font-size: 1.1rem; font-weight: 700; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .admin-pill {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .content { padding: 28px; flex: 1; }
+
+    /* ── Section ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Stat cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-card .icon-wrap {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-header h3 { font-size: 0.95rem; font-weight: 700; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; }
+
+    th {
+      background: #f8fafc;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 11px 16px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    /* ── Badges ── */
+    .badge-role {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .badge-customer  { background: #dbeafe; color: #1d4ed8; }
+    .badge-driver    { background: #dcfce7; color: #15803d; }
+    .badge-owner     { background: #fef9c3; color: #854d0e; }
+    .badge-admin     { background: #fce7f3; color: #be185d; }
+
+    .badge-open   { background: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700; }
+    .badge-closed { background: #fee2e2; color: #b91c1c; padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700; }
+
+    /* ── Action buttons ── */
+    .btn-sm {
+      padding: 5px 12px;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-sm:hover { opacity: 0.8; }
+
+    .btn-danger  { background: #fee2e2; color: #b91c1c; }
+    .btn-toggle  { background: #e0f2fe; color: #0369a1; }
+    .btn-primary { background: var(--accent); color: white; }
+
+    /* ── Search / filter bar ── */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: #fafafa;
+    }
+
+    .filter-bar input, .filter-bar select {
+      padding: 7px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: white;
+      color: var(--text);
+    }
+
+    .filter-bar input:focus, .filter-bar select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* ── Alert ── */
+    .alert {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .alert.success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; display: block; }
+    .alert.error   { background: #fff0f1; border: 1px solid #fca5a5; color: #991b1b; display: block; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Role distribution ── */
+    .role-dist {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 16px 20px;
+    }
+
+    .role-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .role-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div style="font-size:1.6rem;margin-bottom:6px;">⚙️</div>
+    <h1>Food Delivery<br>Admin Panel</h1>
+    <span class="badge">ADMINISTRATOR</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-item active" data-section="overview" onclick="switchTab('overview', this)">
+      <span class="icon">📊</span> Overview
+    </div>
+    <div class="nav-item" data-section="users" onclick="switchTab('users', this)">
+      <span class="icon">👥</span> Users
+    </div>
+    <div class="nav-item" data-section="restaurants" onclick="switchTab('restaurants', this)">
+      <span class="icon">🍽️</span> Restaurants
+    </div>
+    <div class="nav-item" data-section="deliveries" onclick="switchTab('deliveries', this)">
+      <span class="icon">🚚</span> Deliveries
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">🚪 Sign Out</button>
+    <div id="admin-label">Logged in as <strong id="admin-user">—</strong></div>
+  </div>
+</aside>
+
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
+<div class="main">
+  <div class="topbar">
+    <h2 id="section-title">Overview</h2>
+    <div class="topbar-right">
+      <span class="admin-pill">ADMIN</span>
+      <span id="topbar-user">—</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="global-alert" class="alert"></div>
+
+    <!-- ── Overview ─────────────────────────────────── -->
+    <div id="section-overview" class="section active">
+      <div class="stats-grid" id="stats-grid">
+        <div class="spinner">Loading stats…</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Users by Role</h3></div>
+        <div class="role-dist" id="role-dist">
+          <div class="spinner">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Users ─────────────────────────────────────── -->
+    <div id="section-users" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3>All Users</h3>
+          <button class="btn-sm btn-primary" onclick="loadUsers()">↻ Refresh</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="user-search" placeholder="Search username…" oninput="filterUsers()" />
+          <select id="role-filter" onchange="filterUsers()">
+            <option value="">All roles</option>
+            <option value="customer">Customer</option>
+            <option value="restaurant_owner">Restaurant Owner</option>
+            <option value="driver">Driver</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div id="users-table-wrap">
+          <div class="spinner">Loading users…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Restaurants ───────────────────────────────── -->
+    <div id="section-restaurants" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3>All Restaurants</h3>
+          <button class="btn-sm btn-primary" onclick="loadRestaurants()">↻ Refresh</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="rest-search" placeholder="Search restaurant ID…" oninput="filterRestaurants()" />
+          <select id="open-filter" onchange="filterRestaurants()">
+            <option value="">All</option>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+        <div id="restaurants-table-wrap">
+          <div class="spinner">Loading restaurants…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Deliveries ────────────────────────────────── -->
+    <div id="section-deliveries" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h3>All Active Deliveries</h3>
+          <button class="btn-sm btn-primary" onclick="loadDeliveries()">↻ Refresh</button>
+        </div>
+        <div id="deliveries-table-wrap">
+          <div class="spinner">Loading deliveries…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:8000';
+  let token = '';
+  let allUsers = [];
+  let allRestaurants = [];
+
+  // ── Auth guard ─────────────────────────────────────────────────────────
+
+  function init() {
+    token = localStorage.getItem('token') || '';
+    const role  = localStorage.getItem('role') || '';
+    const uid   = localStorage.getItem('user_id') || '';
+
+    if (!token || role !== 'admin') {
+      window.location.href = '/frontend/login.html';
+      return;
+    }
+
+    document.getElementById('admin-user').textContent = uid;
+    document.getElementById('topbar-user').textContent = uid;
+
+    loadOverview();
+    loadUsers();
+    loadRestaurants();
+    loadDeliveries();
+  }
+
+  // ── Tab switching ──────────────────────────────────────────────────────
+
+  const sectionTitles = {
+    overview:    'Overview',
+    users:       'User Management',
+    restaurants: 'Restaurant Management',
+    deliveries:  'Delivery Management',
+  };
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    el.classList.add('active');
+    document.getElementById('section-title').textContent = sectionTitles[name] || name;
+    clearAlert();
+  }
+
+  // ── Alerts ────────────────────────────────────────────────────────────
+
+  function showAlert(msg, type) {
+    const el = document.getElementById('global-alert');
+    el.textContent = msg;
+    el.className = 'alert ' + type;
+    setTimeout(() => el.className = 'alert', 4000);
+  }
+
+  function clearAlert() {
+    document.getElementById('global-alert').className = 'alert';
+  }
+
+  // ── Logout ────────────────────────────────────────────────────────────
+
+  async function logout() {
+    try { await fetch(`${API}/auth/logout`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token}) }); } catch {}
+    localStorage.clear();
+    window.location.href = '/frontend/login.html';
+  }
+
+  // ── Overview ──────────────────────────────────────────────────────────
+
+  async function loadOverview() {
+    try {
+      const res  = await fetch(`${API}/admin/stats?token=${token}`);
+      const data = await res.json();
+
+      const roleColors = {
+        customer:         '#3b82f6',
+        restaurant_owner: '#f59e0b',
+        driver:           '#10b981',
+        admin:            '#ec4899',
+      };
+
+      document.getElementById('stats-grid').innerHTML = `
+        <div class="stat-card">
+          <div class="icon-wrap">👥</div>
+          <div class="label">Total Users</div>
+          <div class="value">${data.total_users}</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon-wrap">🍽️</div>
+          <div class="label">Restaurants</div>
+          <div class="value">${data.total_restaurants}</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon-wrap">✅</div>
+          <div class="label">Open Now</div>
+          <div class="value">${data.open_restaurants}</div>
+        </div>
+        <div class="stat-card">
+          <div class="icon-wrap">🚚</div>
+          <div class="label">Active Deliveries</div>
+          <div class="value">${data.total_deliveries}</div>
+        </div>
+      `;
+
+      const roleHtml = Object.entries(data.users_by_role || {}).map(([role, count]) => `
+        <div class="role-item">
+          <div class="role-dot" style="background:${roleColors[role] || '#94a3b8'}"></div>
+          <span><strong>${count}</strong> ${role.replace('_', ' ')}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('role-dist').innerHTML = roleHtml || '<span style="color:var(--muted)">No data</span>';
+    } catch {
+      document.getElementById('stats-grid').innerHTML = '<div class="empty">Failed to load stats.</div>';
+    }
+  }
+
+  // ── Users ─────────────────────────────────────────────────────────────
+
+  async function loadUsers() {
+    document.getElementById('users-table-wrap').innerHTML = '<div class="spinner">Loading users…</div>';
+    try {
+      const res = await fetch(`${API}/admin/users?token=${token}`);
+      if (!res.ok) throw new Error();
+      allUsers = await res.json();
+      renderUsers(allUsers);
+    } catch {
+      document.getElementById('users-table-wrap').innerHTML = '<div class="empty">Failed to load users.</div>';
+    }
+  }
+
+  function roleBadge(role) {
+    const map = {
+      customer:         'badge-customer',
+      restaurant_owner: 'badge-owner',
+      driver:           'badge-driver',
+      admin:            'badge-admin',
+    };
+    return `<span class="badge-role ${map[role] || ''}">${role.replace('_',' ')}</span>`;
+  }
+
+  function renderUsers(users) {
+    if (!users.length) {
+      document.getElementById('users-table-wrap').innerHTML = '<div class="empty">No users found.</div>';
+      return;
+    }
+    const rows = users.map(u => `
+      <tr>
+        <td><strong>${esc(u.user_id)}</strong></td>
+        <td>${roleBadge(u.role)}</td>
+        <td>${u.restaurant_id != null ? u.restaurant_id : '—'}</td>
+        <td>${esc(u.full_name || '—')}</td>
+        <td>${esc(u.email || '—')}</td>
+        <td>
+          ${u.role !== 'admin' ? `<button class="btn-sm btn-danger" onclick="deleteUser('${esc(u.user_id)}')">🗑 Delete</button>` : '<span style="color:var(--muted);font-size:0.78rem">protected</span>'}
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('users-table-wrap').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th><th>Role</th><th>Restaurant</th><th>Name</th><th>Email</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function filterUsers() {
+    const q    = document.getElementById('user-search').value.toLowerCase();
+    const role = document.getElementById('role-filter').value;
+    const filtered = allUsers.filter(u =>
+      (!q    || u.user_id.toLowerCase().includes(q)) &&
+      (!role || u.role === role)
+    );
+    renderUsers(filtered);
+  }
+
+  async function deleteUser(userId) {
+    if (!confirm(`Delete user "${userId}"? This cannot be undone.`)) return;
+    try {
+      const res = await fetch(`${API}/admin/users/${encodeURIComponent(userId)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showAlert(data.detail || 'Delete failed.', 'error'); return; }
+      showAlert(`User "${userId}" deleted.`, 'success');
+      loadUsers();
+      loadOverview();
+    } catch {
+      showAlert('Could not connect to server.', 'error');
+    }
+  }
+
+  // ── Restaurants ───────────────────────────────────────────────────────
+
+  async function loadRestaurants() {
+    document.getElementById('restaurants-table-wrap').innerHTML = '<div class="spinner">Loading restaurants…</div>';
+    try {
+      const res = await fetch(`${API}/admin/restaurants?token=${token}`);
+      if (!res.ok) throw new Error();
+      allRestaurants = await res.json();
+      renderRestaurants(allRestaurants);
+    } catch {
+      document.getElementById('restaurants-table-wrap').innerHTML = '<div class="empty">Failed to load restaurants.</div>';
+    }
+  }
+
+  function renderRestaurants(list) {
+    if (!list.length) {
+      document.getElementById('restaurants-table-wrap').innerHTML = '<div class="empty">No restaurants found.</div>';
+      return;
+    }
+    const rows = list.map(r => `
+      <tr id="rest-row-${r.restaurant_id}">
+        <td><strong>#${r.restaurant_id}</strong></td>
+        <td>
+          <span class="${r.is_open ? 'badge-open' : 'badge-closed'}" id="rest-badge-${r.restaurant_id}">
+            ${r.is_open ? 'Open' : 'Closed'}
+          </span>
+        </td>
+        <td>
+          <button class="btn-sm btn-toggle" onclick="toggleRestaurant(${r.restaurant_id}, this)">
+            ${r.is_open ? '🔒 Close' : '🔓 Open'}
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('restaurants-table-wrap').innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Restaurant ID</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function filterRestaurants() {
+    const q      = document.getElementById('rest-search').value.toLowerCase();
+    const filter = document.getElementById('open-filter').value;
+    const filtered = allRestaurants.filter(r =>
+      (!q      || String(r.restaurant_id).includes(q)) &&
+      (!filter || (filter === 'open' ? r.is_open : !r.is_open))
+    );
+    renderRestaurants(filtered);
+  }
+
+  async function toggleRestaurant(restaurantId, btn) {
+    btn.disabled = true;
+    btn.textContent = '…';
+    try {
+      const res  = await fetch(`${API}/admin/restaurants/${restaurantId}/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showAlert(data.detail || 'Toggle failed.', 'error'); btn.disabled = false; return; }
+
+      const isOpen = data.is_open;
+      const badge  = document.getElementById(`rest-badge-${restaurantId}`);
+      badge.className = isOpen ? 'badge-open' : 'badge-closed';
+      badge.textContent = isOpen ? 'Open' : 'Closed';
+      btn.textContent = isOpen ? '🔒 Close' : '🔓 Open';
+
+      // Update in-memory list
+      const entry = allRestaurants.find(r => r.restaurant_id === restaurantId);
+      if (entry) entry.is_open = isOpen;
+
+      showAlert(`Restaurant #${restaurantId} is now ${isOpen ? 'open' : 'closed'}.`, 'success');
+      loadOverview();
+    } catch {
+      showAlert('Could not connect to server.', 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── Deliveries ────────────────────────────────────────────────────────
+
+  async function loadDeliveries() {
+    document.getElementById('deliveries-table-wrap').innerHTML = '<div class="spinner">Loading deliveries…</div>';
+    try {
+      const res = await fetch(`${API}/admin/deliveries?token=${token}`);
+      if (!res.ok) throw new Error();
+      const deliveries = await res.json();
+
+      if (!deliveries.length) {
+        document.getElementById('deliveries-table-wrap').innerHTML = '<div class="empty">No active deliveries.</div>';
+        return;
+      }
+
+      const statusColor = {
+        pending:    '#f59e0b',
+        in_transit: '#3b82f6',
+        delivered:  '#10b981',
+        cancelled:  '#ef4444',
+      };
+
+      const rows = deliveries.map(d => `
+        <tr>
+          <td><strong>${esc(d.order_id)}</strong></td>
+          <td>
+            <span style="color:${statusColor[d.status] || '#64748b'};font-weight:700;">
+              ${d.status}
+            </span>
+          </td>
+          <td>${d.driver || '—'}</td>
+          <td>${d.distance != null ? d.distance + ' km' : '—'}</td>
+          <td>${d.time != null ? d.time + ' min' : '—'}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('deliveries-table-wrap').innerHTML = `
+        <table>
+          <thead>
+            <tr><th>Order ID</th><th>Status</th><th>Driver</th><th>Distance</th><th>Est. Time</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    } catch {
+      document.getElementById('deliveries-table-wrap').innerHTML = '<div class="empty">Failed to load deliveries.</div>';
+    }
+  }
+
+  // ── Utility ───────────────────────────────────────────────────────────
+
+  function esc(str) {
+    return String(str ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  init();
+</script>
+</body>
+</html>

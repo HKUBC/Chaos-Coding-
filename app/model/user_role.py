@@ -6,3 +6,4 @@ class UserRole(Enum):
     CUSTOMER         = "customer"
     RESTAURANT_OWNER = "restaurant_owner"
     DRIVER           = "driver"
+    ADMIN            = "admin"

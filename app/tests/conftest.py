@@ -6,12 +6,21 @@ from app.repositories.notification_repository import NotificationRepository
 from app.services.notification_service import NotificationService
 from app.services.csv_service import CSVService
 import app.services.auth_service as auth_module
+import app.services.delivery_service as delivery_module
 
 
 @pytest.fixture(autouse=True)
 def isolate_auth_data(tmp_path, monkeypatch):
     """Redirect the auth data file to a temp dir for every test so usernames never conflict."""
     monkeypatch.setattr(auth_module, '_DATA_FILE', str(tmp_path / 'users.json'))
+
+
+@pytest.fixture(autouse=True)
+def reset_delivery_repo():
+    """Clear the shared delivery repo before each test so order IDs don't leak between tests."""
+    delivery_module._repo.deliveries.clear()
+    yield
+    delivery_module._repo.deliveries.clear()
 
 
 @pytest.fixture
