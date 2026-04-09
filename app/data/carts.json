@@ -1,4 +1,15 @@
 {
+  "kinjalchandel": {
+    "restaurant_id": "3",
+    "items": [
+      {
+        "item_id": "Pasta",
+        "name": "Pasta",
+        "price": 10.07,
+        "quantity": 1
+      }
+    ]
+  },
   "customer_add_item": {
     "restaurant_id": "restaurant1",
     "items": [
@@ -33,17 +44,6 @@
         "name": "Fries",
         "price": 3.5,
         "quantity": 2
-      }
-    ]
-  },
-  "kinjalchandel": {
-    "restaurant_id": "3",
-    "items": [
-      {
-        "item_id": "Pasta",
-        "name": "Pasta",
-        "price": 10.07,
-        "quantity": 1
       }
     ]
   }

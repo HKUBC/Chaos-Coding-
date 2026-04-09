@@ -91,6 +91,12 @@ class RestaurantService:
     def get_unavailable_items(self, restaurant_id: int) -> list:
         return repo.get_unavailable_items(restaurant_id)
 
+    def add_item(self, restaurant_id: int, food_item: str, cuisine: str, price: float) -> None:
+        repo.add_item(restaurant_id, food_item, cuisine, price)
+
+    def archive_item(self, restaurant_id: int, food_item: str) -> bool:
+        return repo.archive_item(restaurant_id, food_item)
+
     def filter_items(
         self,
         restaurant_id,
