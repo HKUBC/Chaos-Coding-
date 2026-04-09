@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Dashboard — Food Delivery App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #e63946;
+      --red-dark: #c1121f;
+      --bg: #f0f2f5;
+      --card: #fff;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+      color: white;
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(230,57,70,0.35);
+    }
+
+    header h1 { font-size: 1.5rem; flex: 1; letter-spacing: -0.02em; }
+
+    .header-user {
+      font-size: 0.88rem;
+      background: rgba(255,255,255,0.18);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 7px 18px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.28); }
+
+    /* ── Restaurant Banner ── */
+    .restaurant-banner {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 40px;
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 28px 8px 0;
+      margin-right: 28px;
+      border-right: 1px solid var(--border);
+    }
+    .info-item:last-child { border-right: none; }
+
+    .info-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #fff5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .info-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-value { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-top: 1px; }
+
+    /* ── Container ── */
+    .container {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 0 24px;
+    }
+
+    /* ── Analytics Grid ── */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 14px 14px 0 0;
+    }
+
+    .stat-card.green::before  { background: #10b981; }
+    .stat-card.blue::before   { background: #3b82f6; }
+    .stat-card.orange::before { background: #f59e0b; }
+    .stat-card.purple::before { background: #8b5cf6; }
+    .stat-card.gold::before   { background: #eab308; }
+
+    .stat-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+
+    .stat-card.green  .stat-icon-wrap { background: #d1fae5; }
+    .stat-card.blue   .stat-icon-wrap { background: #dbeafe; }
+    .stat-card.orange .stat-icon-wrap { background: #fef3c7; }
+    .stat-card.purple .stat-icon-wrap { background: #ede9fe; }
+    .stat-card.gold   .stat-icon-wrap { background: #fefce8; }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-card.gold .stat-value { font-size: 0.95rem; font-weight: 700; }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Section Header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section-badge {
+      background: var(--red);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .legend {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── Menu List ── */
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .menu-item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1.5px solid transparent;
+      transition: border-color 0.2s, opacity 0.2s;
+    }
+
+    .menu-item:hover { border-color: #e5e7eb; }
+
+    .menu-item.unavailable {
+      opacity: 0.55;
+    }
+
+    .menu-item-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .menu-item-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: #fff5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .menu-item-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .menu-item-cuisine {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .menu-item-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-item-price {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--red);
+      min-width: 56px;
+      text-align: right;
+    }
+
+    /* ── Toggle Button ── */
+    .toggle-btn {
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      min-width: 120px;
+      text-align: center;
+    }
+    .toggle-btn:active { transform: scale(0.97); }
+
+    .toggle-btn.available {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .toggle-btn.available:hover { background: #a7f3d0; }
+
+    .toggle-btn.unavailable {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .toggle-btn.unavailable:hover { background: #fecaca; }
+
+    /* ── Status / Spinner ── */
+    .status {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 4px solid #e5e7eb;
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span>🍽️</span>
+    <h1>Owner Dashboard</h1>
+    <span class="header-user" id="header-user"></span>
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </header>
+
+  <div class="restaurant-banner" id="restaurant-banner" style="display:none;">
+    <div class="info-item">
+      <div class="info-icon">🏪</div>
+      <div><div class="info-label">Restaurant ID</div><div class="info-value" id="info-id">—</div></div>
+    </div>
+    <div class="info-item">
+      <div class="info-icon">🍴</div>
+      <div><div class="info-label">Cuisine</div><div class="info-value" id="info-cuisine">—</div></div>
+    </div>
+    <div class="info-item">
+      <div class="info-icon">📍</div>
+      <div><div class="info-label">Location</div><div class="info-value" id="info-location">—</div></div>
+    </div>
+    <div class="info-item">
+      <div class="info-icon">🚚</div>
+      <div><div class="info-label">Delivery</div><div class="info-value" id="info-delivery">—</div></div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="analytics-grid" id="analytics-grid" style="display:none;">
+      <div class="stat-card green">
+        <div class="stat-icon-wrap">💰</div>
+        <div class="stat-value" id="stat-revenue">—</div>
+        <div class="stat-label">Total Revenue</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon-wrap">🧾</div>
+        <div class="stat-value" id="stat-orders">—</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon-wrap">⚡</div>
+        <div class="stat-value" id="stat-active">—</div>
+        <div class="stat-label">Active Orders</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon-wrap">📊</div>
+        <div class="stat-value" id="stat-avg">—</div>
+        <div class="stat-label">Avg Order Value</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-icon-wrap">🏆</div>
+        <div class="stat-value" id="stat-dish">—</div>
+        <div class="stat-label">Most Popular Dish</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="section-title" id="section-title">Menu Items</span>
+        <span class="section-badge" id="menu-count" style="display:none;"></span>
+      </div>
+      <span class="legend">Toggle to mark items as unavailable</span>
+    </div>
+
+    <div id="status" class="status">
+      <div class="spinner"></div>
+      Loading dashboard…
+    </div>
+
+    <div class="menu-list" id="menu-list"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000';
+
+    const token        = localStorage.getItem('token');
+    const role         = localStorage.getItem('role');
+    const userId       = localStorage.getItem('user_id');
+    const restaurantId = localStorage.getItem('restaurant_id');
+
+    if (!token || role !== 'restaurant_owner') {
+      window.location.href = '/frontend/login.html';
+    }
+
+    document.getElementById('header-user').textContent = `👤 ${userId}`;
+
+    const foodIcons = ['🍕','🍔','🌮','🍜','🍱','🥗','🍣','🥘','🌯','🍛'];
+    function iconForItem(name) {
+      const n = name.toLowerCase();
+      if (n.includes('pizza'))  return '🍕';
+      if (n.includes('burger')) return '🍔';
+      if (n.includes('taco') || n.includes('burrito')) return '🌮';
+      if (n.includes('sushi'))  return '🍣';
+      if (n.includes('pasta') || n.includes('noodle')) return '🍜';
+      if (n.includes('salad'))  return '🥗';
+      if (n.includes('rice') || n.includes('briyani')) return '🍚';
+      if (n.includes('cake') || n.includes('dessert')) return '🍰';
+      if (n.includes('soup'))   return '🍲';
+      return foodIcons[Math.floor(Math.random() * foodIcons.length)];
+    }
+
+    async function toggleItem(restaurantId, foodItem, btn, row) {
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/restaurants/${restaurantId}/items/toggle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ food_item: foodItem })
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const nowAvailable = data.available;
+        row.classList.toggle('unavailable', !nowAvailable);
+        btn.textContent = nowAvailable ? '✓ Available' : '✗ Unavailable';
+        btn.className = `toggle-btn ${nowAvailable ? 'available' : 'unavailable'}`;
+      } catch {
+        // silently restore on error
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadDashboard() {
+      const statusEl  = document.getElementById('status');
+      const menuEl    = document.getElementById('menu-list');
+      const bannerEl  = document.getElementById('restaurant-banner');
+      const countEl   = document.getElementById('menu-count');
+
+      try {
+        const [profileRes, analyticsRes] = await Promise.all([
+          fetch(`${API_BASE}/restaurants/${restaurantId}/profile`),
+          fetch(`${API_BASE}/analytics/${restaurantId}/dashboard`)
+        ]);
+
+        if (!profileRes.ok) throw new Error(`Server returned ${profileRes.status}`);
+        const data = await profileRes.json();
+
+        // Analytics
+        if (analyticsRes.ok) {
+          const a = await analyticsRes.json();
+          document.getElementById('stat-revenue').textContent = `$${a.total_revenue.toLocaleString()}`;
+          document.getElementById('stat-orders').textContent  = a.total_orders;
+          document.getElementById('stat-active').textContent  = a.active_orders;
+          document.getElementById('stat-avg').textContent     = `$${a.average_order_value.toFixed(2)}`;
+          document.getElementById('stat-dish').textContent    = a.most_popular_dish;
+          document.getElementById('analytics-grid').style.display = 'grid';
+        }
+
+        // Banner
+        const r = data.restaurant;
+        if (r) {
+          document.getElementById('info-id').textContent       = restaurantId;
+          document.getElementById('info-cuisine').textContent  = r.preferred_cuisine || '—';
+          document.getElementById('info-location').textContent = r.location || '—';
+          document.getElementById('info-delivery').textContent = r.delivery_method || '—';
+          bannerEl.style.display = 'flex';
+        }
+
+        const menu = data.menu;
+        statusEl.style.display = 'none';
+
+        if (menu.length === 0) {
+          statusEl.textContent = 'No menu items found.';
+          statusEl.style.display = 'block';
+          return;
+        }
+
+        // Deduplicate
+        const seen = new Set();
+        const unique = menu.filter(item => {
+          if (seen.has(item.food_item)) return false;
+          seen.add(item.food_item);
+          return true;
+        });
+
+        countEl.textContent = unique.length;
+        countEl.style.display = 'inline-block';
+
+        unique.forEach(item => {
+          const isAvailable = item.available !== false;
+          const row = document.createElement('div');
+          row.className = `menu-item${isAvailable ? '' : ' unavailable'}`;
+
+          const btn = document.createElement('button');
+          btn.className = `toggle-btn ${isAvailable ? 'available' : 'unavailable'}`;
+          btn.textContent = isAvailable ? '✓ Available' : '✗ Unavailable';
+          btn.addEventListener('click', () => toggleItem(restaurantId, item.food_item, btn, row));
+
+          row.innerHTML = `
+            <div class="menu-item-left">
+              <div class="menu-item-icon">${iconForItem(item.food_item)}</div>
+              <div>
+                <div class="menu-item-name">${item.food_item}</div>
+                <div class="menu-item-cuisine">${item.preferred_cuisine}</div>
+              </div>
+            </div>
+            <div class="menu-item-right">
+              <div class="menu-item-price">$${parseFloat(item.order_value).toFixed(2)}</div>
+            </div>
+          `;
+          row.querySelector('.menu-item-right').appendChild(btn);
+          menuEl.appendChild(row);
+        });
+
+      } catch (err) {
+        statusEl.innerHTML = `<p>Failed to load dashboard.<br><small>${err.message}</small></p>`;
+      }
+    }
+
+    async function logout() {
+      const token = localStorage.getItem('token');
+      try {
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+      } finally {
+        localStorage.clear();
+        window.location.href = '/frontend/login.html';
+      }
+    }
+
+    loadDashboard();
+  </script>
+
+</body>
+</html>

@@ -9,6 +9,7 @@ class AuthService:
     def __init__(self):
         self._credentials: dict[str, tuple[str, str]] = {}  # user_id -> (salt, hashed_password)
         self._roles: dict[str, UserRole] = {}               # user_id -> role
+        self._restaurant_ids: dict[str, int] = {}           # user_id -> restaurant_id (owners only)
 
         # saves the session tokens in a dictionary
         self._tokens: dict[str, str] = {}  # token -> user_id
@@ -18,12 +19,14 @@ class AuthService:
         return hashlib.sha256((salt + password).encode()).hexdigest()
 
 # os.urandom is used to generate a random salt for each user
-    def sign_up(self, user_id: str, password: str, role: UserRole) -> None:
+    def sign_up(self, user_id: str, password: str, role: UserRole, restaurant_id: int | None = None) -> None:
         if user_id in self._credentials:
             raise ValueError(f"User {user_id} already has an account.")
         salt = os.urandom(16).hex()
         self._credentials[user_id] = (salt, self._hash_password(password, salt))
         self._roles[user_id] = role
+        if restaurant_id is not None:
+            self._restaurant_ids[user_id] = restaurant_id
 
     def login(self, user_id: str, password: str) -> str:
         if user_id not in self._credentials:
@@ -53,6 +56,14 @@ class AuthService:
     def get_role(self, token: str) -> UserRole:
         user_id = self.validate_token(token)
         return self._roles[user_id]
+
+    def get_me(self, token: str) -> dict:
+        user_id = self.validate_token(token)
+        return {
+            "user_id": user_id,
+            "role": self._roles[user_id].value,
+            "restaurant_id": self._restaurant_ids.get(user_id)
+        }
 
     # raises an error if the user's role does not match the required role
     def require_role(self, token: str, required_role: UserRole) -> None:

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 from app.services.auth_service import AuthService
 from app.model.user_role import UserRole
 
@@ -11,6 +12,7 @@ class SignUpRequest(BaseModel):
     user_id: str
     password: str
     role: UserRole = UserRole.CUSTOMER
+    restaurant_id: Optional[int] = None
 
 class LoginRequest(BaseModel):
     user_id: str
@@ -22,7 +24,7 @@ class TokenRequest(BaseModel):
 @router.post("/signup")
 def sign_up(request: SignUpRequest):
     try:
-        service.sign_up(request.user_id, request.password, request.role)
+        service.sign_up(request.user_id, request.password, request.role, request.restaurant_id)
         return {"message": f"User {request.user_id} created successfully."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -31,7 +33,16 @@ def sign_up(request: SignUpRequest):
 def login(request: LoginRequest):
     try:
         token = service.login(request.user_id, request.password)
-        return {"token": token}
+        result = service.get_me(token)
+        result["token"] = token
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+@router.post("/me")
+def get_me(request: TokenRequest):
+    try:
+        return service.get_me(request.token)
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
 

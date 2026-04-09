@@ -3,167 +3,228 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login – Food Delivery App</title>
+  <title>Sign In – Food Delivery App</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --red: #e63946;
+      --red-dark: #c1121f;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background: linear-gradient(135deg, #e63946 0%, #c1121f 45%, #1a1a2e 100%);
     }
 
-    header {
-      background-color: #e63946;
-      color: white;
-      padding: 20px 40px;
+    /* ── Brand bar at top ── */
+    .brand-bar {
+      padding: 22px 40px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      color: white;
     }
 
-    header h1 { font-size: 1.8rem; }
-    header span { font-size: 2rem; }
+    .brand-bar span { font-size: 1.8rem; }
+    .brand-bar h1   { font-size: 1.4rem; letter-spacing: -0.02em; }
 
+    /* ── Page center ── */
     .page-center {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
+      padding: 20px 20px 60px;
     }
 
+    /* ── Card ── */
     .card {
       background: white;
-      border-radius: 12px;
-      padding: 40px 44px;
+      border-radius: 20px;
+      padding: 44px 44px 36px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    }
+
+    .card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: #fff5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      margin-bottom: 20px;
     }
 
     .card h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #222;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
       margin-bottom: 6px;
     }
 
     .card .subtitle {
       font-size: 0.88rem;
-      color: #888;
+      color: var(--muted);
       margin-bottom: 28px;
     }
 
-    .form-group { margin-bottom: 18px; }
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
 
     label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      color: #555;
+      color: #374151;
       margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap .input-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
     }
 
     input {
       width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid #e0e0e0;
-      border-radius: 8px;
+      padding: 11px 14px 11px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
       font-size: 0.95rem;
-      color: #333;
+      color: var(--text);
       background: #fafafa;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     input:focus {
       outline: none;
-      border-color: #e63946;
-      box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.12);
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(230,57,70,0.12);
       background: #fff;
     }
 
+    /* ── Button ── */
     .btn {
       width: 100%;
-      padding: 12px;
+      padding: 13px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      background-color: #e63946;
+      background: linear-gradient(135deg, #e63946, #c1121f);
       color: white;
       margin-top: 8px;
-      transition: background 0.2s, transform 0.1s;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.01em;
     }
 
-    .btn:hover { background-color: #c1121f; }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { background-color: #f4a0a7; cursor: not-allowed; }
+    .btn:hover   { opacity: 0.92; }
+    .btn:active  { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* ── Alert ── */
     .alert {
       padding: 10px 14px;
       border-radius: 8px;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 500;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       display: none;
     }
 
     .alert.error {
       background: #fff0f1;
-      border: 1px solid #f4a0a7;
-      color: #c1121f;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
     }
 
     .alert.success {
-      background: #f0fff4;
-      border: 1px solid #9ae6b4;
-      color: #276749;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #166534;
     }
 
+    /* ── Footer links ── */
     .link-row {
       text-align: center;
-      margin-top: 20px;
-      font-size: 0.88rem;
-      color: #888;
+      margin-top: 22px;
+      font-size: 0.86rem;
+      color: var(--muted);
     }
 
     .link-row a {
-      color: #e63946;
+      color: var(--red);
       text-decoration: none;
       font-weight: 600;
     }
-
     .link-row a:hover { text-decoration: underline; }
+
+    /* ── Test credentials hint ── */
+    .hint-box {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .hint-box strong { color: #374151; }
   </style>
 </head>
 <body>
 
-  <header>
+  <div class="brand-bar">
     <span>🍔</span>
     <h1>Food Delivery App</h1>
-  </header>
+  </div>
 
   <div class="page-center">
     <div class="card">
+      <div class="card-icon">👋</div>
       <h2>Welcome back</h2>
-      <p class="subtitle">Sign in to your account to continue</p>
+      <p class="subtitle">Sign in to continue to your account</p>
 
       <div class="alert" id="alert"></div>
 
       <form id="login-form" novalidate>
         <div class="form-group">
           <label for="user_id">Username</label>
-          <input type="text" id="user_id" placeholder="Enter your username" autocomplete="username" required />
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="user_id" placeholder="Enter your username" autocomplete="username" required />
+          </div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
+          </div>
         </div>
 
         <button type="submit" class="btn" id="login-btn">Sign In</button>
@@ -171,6 +232,11 @@
 
       <div class="link-row">
         Don't have an account? <a href="/frontend/signup.html">Sign up</a>
+      </div>
+
+      <div class="hint-box">
+        <strong>Test owner account:</strong><br />
+        Username: <strong>owner1</strong> &nbsp;·&nbsp; Password: <strong>password123</strong>
       </div>
     </div>
   </div>
@@ -214,11 +280,18 @@
           return;
         }
 
-        // Store token and redirect
         localStorage.setItem('token', data.token);
         localStorage.setItem('user_id', user_id);
+        localStorage.setItem('role', data.role);
+        if (data.restaurant_id !== null && data.restaurant_id !== undefined) {
+          localStorage.setItem('restaurant_id', data.restaurant_id);
+        }
+
         showAlert('Login successful! Redirecting…', 'success');
-        setTimeout(() => { window.location.href = '/frontend/index.html'; }, 800);
+        const dest = data.role === 'restaurant_owner'
+          ? '/frontend/dashboard.html'
+          : '/frontend/index.html';
+        setTimeout(() => { window.location.href = dest; }, 700);
 
       } catch (err) {
         showAlert('Could not connect to the server.', 'error');
