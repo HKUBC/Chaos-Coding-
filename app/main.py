@@ -7,6 +7,7 @@ from app.api.routes.restaurant_route import router as restaurant_router
 from app.api.routes.analytics_route import router as analytics_router
 from app.api.routes.promotion_route import router as promotion_router
 from app.api.routes.delivery_route import router as delivery_router
+from app.api.routes.payment_route import router as payment_router
 from app.api.routes.driver_route import router as driver_router
 from app.api.routes.order_route import router as order_router
 from app.api.routes.auth_route import router as auth_router
@@ -33,6 +34,7 @@ app.include_router(restaurant_router)
 app.include_router(analytics_router)
 app.include_router(promotion_router)
 app.include_router(delivery_router)
+app.include_router(payment_router)
 app.include_router(driver_router)
 app.include_router(order_router)
 app.include_router(auth_router)

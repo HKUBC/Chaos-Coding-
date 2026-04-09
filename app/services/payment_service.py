@@ -25,9 +25,12 @@ class PaymentService:
             raise ValueError(f"Cannot process payment. Order is currently {order.status}.")
 
         # 2nd check - pthe payment amount must be same as the order total amount
-        if payment.amount != (order.order_total() * payment.taxes) + payment.delivery_fee:
+        subtotal = order.order_total()
+        total = subtotal * payment.taxes + payment.delivery_fee
+
+        if abs(payment.amount - total) > 0.01:
             raise ValueError(
-                f"Payment amount ${(payment.amount * payment.taxes) + payment.delivery_fee} does not match order total ${(order.order_total() * payment.taxes) + payment.delivery_fee}."
+                f"Payment amount ${payment.amount:.2f} does not match order total ${total:.2f}."
             )
 
         # 3rd check: prevent paying for the same order twice
