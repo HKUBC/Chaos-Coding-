@@ -2,12 +2,15 @@ from app.model.delivery import Delivery
 from app.repositories.delivery_repository import DeliveryRepository
 from app.model.order import Order
 
+# Shared repository — all service instances use the same in-memory store
+_repo = DeliveryRepository()
+
 class DeliveryService:
     """
     Responsible for manging the deliveries and ensures that each order has at most one delivery.
     """
     def __init__(self):
-        self.repo = DeliveryRepository()
+        self.repo = _repo
 
     # Assigns a delivery to an order if the order is in the PREPARING status and doesn't already have a delivery assigned
     def assign_delivery(self, order: Order) -> Delivery | None:
@@ -28,6 +31,10 @@ class DeliveryService:
     def get_delivery(self, order_id: str) -> Delivery | None:
         return self.repo.deliveries.get(order_id, None)
     
+    # Retrieves all deliveries
+    def get_all_deliveries(self) -> list:
+        return list(self.repo.deliveries.values())
+
     # Retrieves the delivery time for a given order id
     def get_delivery_time(self, order_id: str) -> int | None:
         return self.repo.get_delivery_time(order_id)

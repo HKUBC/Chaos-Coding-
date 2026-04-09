@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed – Food Delivery App</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #e63946;
+      color: white;
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 { font-size: 1.5rem; }
+    .header-right { margin-left: auto; }
+    .home-btn {
+      background: rgba(255,255,255,0.2);
+      border: none; color: white;
+      font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; padding: 8px 14px;
+      border-radius: 8px; text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .home-btn:hover { background: rgba(255,255,255,0.35); }
+
+    /* Confirmed banner */
+    .confirmed-banner {
+      background: linear-gradient(135deg, #1b4332, #2d6a4f);
+      color: white;
+      padding: 32px 40px;
+      text-align: center;
+    }
+    .confirmed-banner .check { font-size: 3.5rem; margin-bottom: 8px; }
+    .confirmed-banner h2 { font-size: 1.7rem; font-weight: 700; margin-bottom: 6px; }
+    .confirmed-banner p  { font-size: 0.95rem; opacity: 0.85; }
+    .order-id-box {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-family: monospace;
+      font-size: 0.95rem;
+      margin-top: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* Layout */
+    .layout {
+      max-width: 1000px;
+      margin: 28px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 22px 26px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Map */
+    #map {
+      width: 100%;
+      height: 240px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    /* Tracking steps */
+    .tracking-steps {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .tracking-steps::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: #eee;
+    }
+
+    .step-item {
+      position: relative;
+      padding: 0 0 24px 18px;
+      opacity: 0.35;
+      transition: opacity 0.4s;
+    }
+    .step-item.done  { opacity: 1; }
+    .step-item.active { opacity: 1; }
+    .step-item:last-child { padding-bottom: 0; }
+
+    .step-dot {
+      position: absolute;
+      left: -22px;
+      top: 2px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #ddd;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem;
+      transition: background 0.4s;
+      z-index: 1;
+    }
+    .step-item.done  .step-dot  { background: #2d6a4f; color: white; }
+    .step-item.active .step-dot { background: #e63946; color: white; animation: pulse 1.2s ease-in-out infinite; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230,57,70,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(230,57,70,0); }
+    }
+
+    .step-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 2px;
+    }
+    .step-desc {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .step-time {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    /* Driver card */
+    .driver-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: #f8f9fc;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+    .driver-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e63946, #1a1a2e);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .driver-name { font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+    .driver-meta { font-size: 0.8rem; color: #888; margin-top: 2px; }
+
+    .eta-box {
+      display: flex;
+      gap: 12px;
+    }
+    .eta-item {
+      flex: 1;
+      background: #f8f9fc;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .eta-item .eta-val { font-size: 1.5rem; font-weight: 700; color: #e63946; }
+    .eta-item .eta-lbl { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+    /* Order summary */
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 0.88rem;
+    }
+    .order-item:last-of-type { border-bottom: none; }
+    .order-item-name { flex: 1; font-weight: 500; }
+    .order-item-qty  { color: #aaa; font-size: 0.8rem; }
+    .order-item-price { font-weight: 600; }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      color: #666;
+      margin-bottom: 7px;
+    }
+    .summary-row.total {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #222;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+      margin-top: 4px;
+    }
+
+    .divider { border: none; border-top: 1px solid #eee; margin: 14px 0; }
+
+    .address-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .address-row .icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    .payment-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: #555;
+    }
+    .payment-badge {
+      background: #e8f4fd;
+      color: #0f3460;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .btn-home {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: #e63946;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 16px;
+      transition: background 0.2s;
+    }
+    .btn-home:hover { background: #c1121f; }
+
+    .sticky-right { position: sticky; top: 24px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span>✅</span>
+    <h1>Order Confirmed</h1>
+    <div class="header-right">
+      <a class="home-btn" href="/frontend/index.html">🏠 Home</a>
+    </div>
+  </header>
+
+  <!-- Confirmed banner -->
+  <div class="confirmed-banner">
+    <div class="check">🎉</div>
+    <h2>Order placed successfully!</h2>
+    <p>We've received your order. A driver will accept it shortly.</p>
+    <div class="order-id-box" id="banner-order-id">Loading…</div>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT: Tracking -->
+    <div>
+
+      <!-- Map -->
+      <div class="card">
+        <div class="card-title">📍 Live Tracking</div>
+        <div id="map"></div>
+
+        <!-- Driver info -->
+        <div class="driver-card">
+          <div class="driver-avatar">🚗</div>
+          <div style="flex:1;">
+            <div class="driver-name" id="driver-name">Loading…</div>
+            <div class="driver-meta">Your delivery driver · ⭐ 4.8</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.4rem;">📞</div>
+            <div style="font-size:0.72rem;color:#aaa;margin-top:2px;">Contact</div>
+          </div>
+        </div>
+
+        <!-- ETA -->
+        <div class="eta-box">
+          <div class="eta-item">
+            <div class="eta-val" id="eta-min">25</div>
+            <div class="eta-lbl">Est. Minutes</div>
+          </div>
+          <div class="eta-item">
+            <div class="eta-val" id="eta-dist">3.2</div>
+            <div class="eta-lbl">km Away</div>
+          </div>
+          <div class="eta-item">
+            <div class="eta-val" id="eta-time">—</div>
+            <div class="eta-lbl">Arrives At</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order status steps -->
+      <div class="card">
+        <div class="card-title">🔄 Order Status</div>
+        <div class="tracking-steps">
+          <div class="step-item done" id="step-placed">
+            <div class="step-dot">✓</div>
+            <div class="step-label">Order Placed</div>
+            <div class="step-desc">Your order has been confirmed and paid.</div>
+            <div class="step-time" id="step-placed-time"></div>
+          </div>
+          <div class="step-item" id="step-preparing">
+            <div class="step-dot">🍳</div>
+            <div class="step-label">Preparing</div>
+            <div class="step-desc">The restaurant is preparing your food.</div>
+            <div class="step-time"></div>
+          </div>
+          <div class="step-item" id="step-pickup">
+            <div class="step-dot">🚗</div>
+            <div class="step-label">Picked Up</div>
+            <div class="step-desc">Driver has picked up your order.</div>
+            <div class="step-time"></div>
+          </div>
+          <div class="step-item" id="step-delivering">
+            <div class="step-dot">📦</div>
+            <div class="step-label">On the Way</div>
+            <div class="step-desc">Your order is on its way to you!</div>
+            <div class="step-time"></div>
+          </div>
+          <div class="step-item" id="step-delivered">
+            <div class="step-dot">🎉</div>
+            <div class="step-label">Delivered</div>
+            <div class="step-desc">Enjoy your meal!</div>
+            <div class="step-time"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Order details -->
+    <div class="sticky-right">
+      <div class="card">
+        <div class="card-title">🧾 Order Summary</div>
+        <div id="order-items"></div>
+        <hr class="divider" />
+        <div class="summary-row"><span>Subtotal</span><span id="sum-subtotal">—</span></div>
+        <div class="summary-row"><span>Delivery Fee</span><span>$2.50</span></div>
+        <div class="summary-row"><span>Taxes (12%)</span><span id="sum-tax">—</span></div>
+        <div class="summary-row total"><span>Total Paid</span><span id="sum-total">—</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Delivery Details</div>
+        <div class="address-row">
+          <span class="icon">📍</span>
+          <div id="delivery-address">—</div>
+        </div>
+        <div class="address-row">
+          <span class="icon">🏪</span>
+          <div id="delivery-restaurant">Restaurant —</div>
+        </div>
+        <hr class="divider" />
+        <div class="payment-row">
+          <span>Payment:</span>
+          <span class="payment-badge" id="payment-method">—</span>
+        </div>
+      </div>
+
+      <a class="btn-home" href="/frontend/index.html">Order Again</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000';
+
+    const order = JSON.parse(localStorage.getItem('last_order') || 'null');
+    if (!order) { window.location.href = '/frontend/index.html'; }
+
+    const DELIVERY_FEE = 2.50;
+    const TAX_RATE     = 0.12;
+
+    const foodIcons = ['🍕','🍔','🌮','🍜','🍱','🥗','🍣','🥘','🌯','🍛'];
+    function iconFor(name) {
+      const n = (name||'').toLowerCase();
+      if (n.includes('pizza'))  return '🍕';
+      if (n.includes('burger')) return '🍔';
+      if (n.includes('taco') || n.includes('burrito')) return '🌮';
+      if (n.includes('sushi'))  return '🍣';
+      if (n.includes('pasta') || n.includes('noodle')) return '🍜';
+      if (n.includes('salad'))  return '🥗';
+      if (n.includes('rice'))   return '🍚';
+      return foodIcons[Math.abs((name||'a').charCodeAt(0)) % foodIcons.length];
+    }
+
+    function fmt(d) {
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ── Populate static info ────────────────────────────────────────────────
+    function populateDetails() {
+      document.getElementById('banner-order-id').textContent  = `Order #${order.order_id}`;
+      document.getElementById('driver-name').textContent      = order.driver || 'Waiting for driver…';
+      document.getElementById('delivery-address').textContent = order.address || '—';
+      document.getElementById('delivery-restaurant').textContent = `Restaurant #${order.restaurant_id}`;
+      document.getElementById('payment-method').textContent   = order.method === 'card' ? '💳 Card' : order.method === 'apple_pay' ? '🍎 Apple Pay' : '🅿️ PayPal';
+
+      const placedAt = new Date(order.placed_at);
+      document.getElementById('step-placed-time').textContent = fmt(placedAt);
+
+      // ETA
+      const etaDate = new Date(placedAt.getTime() + 25 * 60000);
+      document.getElementById('eta-time').textContent = fmt(etaDate);
+
+      // Summary totals
+      const subtotal = parseFloat(order.subtotal || 0);
+      const tax      = subtotal * TAX_RATE;
+      const total    = subtotal + tax + DELIVERY_FEE;
+      document.getElementById('sum-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+      document.getElementById('sum-tax').textContent      = `$${tax.toFixed(2)}`;
+      document.getElementById('sum-total').textContent    = `$${total.toFixed(2)}`;
+
+      // Items
+      const el = document.getElementById('order-items');
+      (order.items || []).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'order-item';
+        div.innerHTML = `
+          <span>${iconFor(item.name)}</span>
+          <span class="order-item-name">${item.name}</span>
+          <span class="order-item-qty">×${item.quantity}</span>
+          <span class="order-item-price">$${parseFloat(item.subtotal).toFixed(2)}</span>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    // ── Map ─────────────────────────────────────────────────────────────────
+    function initMap() {
+      const center = [49.2827, -123.1207];
+      const map    = L.map('map', { zoomControl: true }).setView(center, 14);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Restaurant marker
+      const restIcon = L.divIcon({ html: '<div style="font-size:1.6rem;">🍽️</div>', iconSize:[32,32], iconAnchor:[16,16], className:'' });
+      L.marker([49.2890, -123.1200], { icon: restIcon }).addTo(map).bindPopup(`Restaurant #${order.restaurant_id}`);
+
+      // Customer marker
+      const homeIcon = L.divIcon({ html: '<div style="font-size:1.6rem;">🏠</div>', iconSize:[32,32], iconAnchor:[16,16], className:'' });
+      L.marker([49.2760, -123.1180], { icon: homeIcon }).addTo(map).bindPopup('Your location');
+
+      // Driver marker — animates between restaurant and home
+      const driverIcon = L.divIcon({ html: '<div style="font-size:1.8rem;">🚗</div>', iconSize:[36,36], iconAnchor:[18,18], className:'' });
+      const driverMarker = L.marker([49.2890, -123.1200], { icon: driverIcon }).addTo(map).bindPopup(order.driver ? `Driver: ${order.driver}` : 'Awaiting driver');
+
+      // Draw route line
+      L.polyline([[49.2890,-123.1200],[49.2760,-123.1180]], { color:'#e63946', weight:3, dashArray:'6,6' }).addTo(map);
+
+      // Animate driver marker toward home
+      let progress = 0;
+      const startLat = 49.2890, startLng = -123.1200;
+      const endLat   = 49.2760, endLng   = -123.1180;
+
+      const animateDriver = setInterval(() => {
+        progress += 0.004;
+        if (progress >= 1) { progress = 1; clearInterval(animateDriver); }
+        const lat = startLat + (endLat - startLat) * progress;
+        const lng = startLng + (endLng - startLng) * progress;
+        driverMarker.setLatLng([lat, lng]);
+      }, 1000);
+    }
+
+    // ── Order tracking — driven by real delivery status ─────────────────────
+    function activateStep(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('done');
+      el.classList.add('active');
+      const timeEl = el.querySelector('.step-time');
+      if (timeEl && !timeEl.textContent) timeEl.textContent = fmt(new Date());
+    }
+
+    function completeStep(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('active');
+      el.classList.add('done');
+      el.querySelector('.step-dot').textContent = '✓';
+    }
+
+    function applyStatus(status) {
+      // Reset all to inactive first (except placed which is always done)
+      completeStep('step-placed');
+
+      if (status === 'pending') {
+        // Waiting for driver to accept
+        activateStep('step-preparing');
+      } else if (status === 'accepted') {
+        // Driver accepted, heading to restaurant
+        completeStep('step-preparing');
+        activateStep('step-pickup');
+      } else if (status === 'picked_up') {
+        // Driver picked up food
+        completeStep('step-preparing');
+        completeStep('step-pickup');
+        activateStep('step-delivering');
+        document.getElementById('eta-min').textContent = '12';
+      } else if (status === 'delivering') {
+        // Legacy status — treat as picked up + on way
+        completeStep('step-preparing');
+        completeStep('step-pickup');
+        activateStep('step-delivering');
+        document.getElementById('eta-min').textContent = '12';
+      } else if (status === 'delivered') {
+        completeStep('step-preparing');
+        completeStep('step-pickup');
+        completeStep('step-delivering');
+        completeStep('step-delivered');
+        document.getElementById('eta-min').textContent = '0';
+        clearInterval(pollingInterval);
+      }
+    }
+
+    let pollingInterval = null;
+
+    async function pollStatus() {
+      const orderId = order.order_id;
+      if (!orderId) return;
+      try {
+        const res = await fetch(`${API_BASE}/deliveries/${orderId}/delivery_status`);
+        if (res.ok) {
+          const data = await res.json();
+          applyStatus(data.status);
+        }
+      } catch (_) {}
+    }
+
+    function startPolling() {
+      // Apply initial state immediately
+      applyStatus('pending');
+      pollStatus();
+      pollingInterval = setInterval(pollStatus, 3000); // poll every 3 seconds
+    }
+
+    // ── Boot ────────────────────────────────────────────────────────────────
+    populateDetails();
+    initMap();
+    startPolling();
+  </script>
+
+</body>
+</html>

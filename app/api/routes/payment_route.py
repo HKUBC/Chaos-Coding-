@@ -42,6 +42,9 @@ def process_payment(order_id: str, request: PaymentRequest):
             cvv=request.cvv,
         )
         result = payment_service.process_payment(payment, order)
+        # If approved, release order to restaurant (sets status → PREPARING so delivery can be assigned)
+        if result.status.value == "approved":
+            payment_service.release_order_to_restaurant(order)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

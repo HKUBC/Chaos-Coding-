@@ -9,6 +9,20 @@ router = APIRouter(prefix="/deliveries", tags=["Deliveries"])
 delivery_service = DeliveryService()
 order_service = OrderService()
 
+@router.get("/")
+# this route method will return all deliveries
+def get_all_deliveries():
+    deliveries = delivery_service.get_all_deliveries()
+    return [
+        {
+            "order_id":    d.delivery_id,
+            "delivery_id": d.delivery_id,
+            "status":      d.status.value,
+            "driver":      d.driver.driver_id if d.driver else None,
+        }
+        for d in deliveries
+    ]
+
 @router.post("/{order_id}/assign")
 # this route method will assign a delivery to an order
 def assign_delivery(order_id: str):

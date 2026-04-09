@@ -37,7 +37,6 @@
     header h1 { font-size: 1.6rem; }
 
     .header-right { margin-left: auto; }
-
     .home-btn {
       background: rgba(255,255,255,0.2);
       border: none;
@@ -65,11 +64,8 @@
       align-items: start;
     }
 
-    @media (max-width: 720px) {
-      .layout { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } }
 
-    /* Cards */
     .card {
       background: white;
       border-radius: 12px;
@@ -79,7 +75,7 @@
     }
 
     .card-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: #222;
       margin-bottom: 18px;
@@ -88,18 +84,17 @@
       gap: 8px;
     }
 
-    .card-title .step {
+    .step {
       width: 26px; height: 26px;
       background: #e63946;
       color: white;
       border-radius: 50%;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
 
-    /* Form inputs */
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .form-group { margin-bottom: 14px; }
 
@@ -129,45 +124,6 @@
       background: #fff;
     }
 
-    /* Promotions */
-    .promo-banner {
-      background: #fff8e1;
-      border: 1.5px solid #ffe082;
-      border-radius: 10px;
-      padding: 14px 16px;
-      font-size: 0.88rem;
-      color: #795548;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .promo-banner .promo-icon { font-size: 1.3rem; flex-shrink: 0; }
-
-    .promo-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-
-    .promo-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #fff3e0;
-      border: 1.5px solid #ffcc02;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      color: #5d4037;
-      font-weight: 500;
-    }
-
-    .promo-tag .badge {
-      background: #e63946;
-      color: white;
-      font-size: 0.72rem;
-      font-weight: 700;
-      border-radius: 4px;
-      padding: 2px 6px;
-    }
-
     /* Payment method selector */
     .payment-grid {
       display: grid;
@@ -177,7 +133,6 @@
     }
 
     .pay-option input[type="radio"] { display: none; }
-
     .pay-option label {
       display: flex;
       flex-direction: column;
@@ -194,20 +149,52 @@
       transition: border-color 0.2s, color 0.2s, background 0.2s;
       user-select: none;
     }
-
     .pay-option label .pay-icon { font-size: 1.6rem; }
-
     .pay-option input[type="radio"]:checked + label {
       border-color: #e63946;
       color: #e63946;
       background: #fff0f1;
     }
 
-    /* Card fields */
     #card-fields { display: none; }
     #card-fields.visible { display: block; }
 
-    /* Order summary (right column) */
+    /* Card preview */
+    .card-preview {
+      background: linear-gradient(135deg, #1a1a2e, #e63946);
+      border-radius: 12px;
+      padding: 20px 22px;
+      color: white;
+      margin-bottom: 16px;
+      font-family: monospace;
+    }
+    .card-preview .card-number-display {
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+      margin: 10px 0;
+    }
+    .card-preview .card-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      opacity: 0.8;
+      margin-top: 14px;
+    }
+
+    /* Promotions */
+    .promo-banner {
+      background: #fff8e1;
+      border: 1.5px solid #ffe082;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.86rem;
+      color: #795548;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* Order summary */
     .summary-sticky { position: sticky; top: 24px; }
 
     .summary-item {
@@ -218,12 +205,10 @@
       border-bottom: 1px solid #f0f0f0;
       font-size: 0.9rem;
     }
-
     .summary-item:last-of-type { border-bottom: none; }
-    .summary-item-icon { font-size: 1.2rem; }
-    .summary-item-name { flex: 1; color: #333; }
+    .summary-item-name { flex: 1; }
     .summary-item-qty { color: #888; font-size: 0.82rem; }
-    .summary-item-price { font-weight: 600; color: #333; }
+    .summary-item-price { font-weight: 600; }
 
     .divider { border: none; border-top: 1px solid #eee; margin: 14px 0; }
 
@@ -235,8 +220,6 @@
       margin-bottom: 8px;
     }
 
-    .summary-row.discount { color: #2d6a4f; font-weight: 600; }
-
     .summary-row.total {
       font-size: 1.1rem;
       font-weight: 700;
@@ -246,7 +229,6 @@
       margin-top: 6px;
     }
 
-    /* Place order button */
     .btn-place {
       width: 100%;
       padding: 14px;
@@ -260,12 +242,10 @@
       margin-top: 16px;
       transition: background 0.2s, transform 0.1s;
     }
-
     .btn-place:hover { background-color: #c1121f; }
     .btn-place:active { transform: scale(0.98); }
     .btn-place:disabled { background-color: #f4a0a7; cursor: not-allowed; }
 
-    /* Alert */
     .alert {
       padding: 12px 16px;
       border-radius: 8px;
@@ -277,7 +257,12 @@
     .alert.error   { background: #fff0f1; border: 1px solid #f4a0a7; color: #c1121f; }
     .alert.success { background: #f0fff4; border: 1px solid #9ae6b4; color: #276749; }
 
-    /* Spinner */
+    .hint {
+      font-size: 0.76rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
     .spinner {
       width: 36px; height: 36px;
       border: 4px solid #eee;
@@ -288,43 +273,40 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Success overlay */
-    #success-screen {
+    /* Processing overlay */
+    #processing-overlay {
       display: none;
-      text-align: center;
-      padding: 60px 20px;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.92);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
     }
-
-    #success-screen .success-icon { font-size: 4rem; margin-bottom: 16px; }
-    #success-screen h2 { font-size: 1.5rem; font-weight: 700; color: #222; margin-bottom: 8px; }
-    #success-screen p  { color: #888; font-size: 0.95rem; margin-bottom: 6px; }
-    #success-screen .order-id-box {
-      display: inline-block;
-      background: #f0fff4;
-      border: 1px solid #9ae6b4;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-family: monospace;
-      font-size: 0.95rem;
-      color: #276749;
-      margin: 14px 0 24px;
+    #processing-overlay.visible { display: flex; }
+    #processing-overlay .proc-icon { font-size: 3rem; }
+    #processing-overlay h2 { font-size: 1.3rem; font-weight: 700; color: #222; }
+    #processing-overlay p  { color: #888; font-size: 0.92rem; }
+    #processing-overlay .proc-spinner {
+      width: 48px; height: 48px;
+      border: 5px solid #eee;
+      border-top-color: #e63946;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
-
-    .btn-home {
-      display: inline-block;
-      padding: 12px 28px;
-      background: #e63946;
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: background 0.15s;
-    }
-    .btn-home:hover { background: #c1121f; }
   </style>
 </head>
 <body>
+
+  <!-- Processing overlay -->
+  <div id="processing-overlay">
+    <div class="proc-spinner"></div>
+    <div class="proc-icon" id="proc-icon" style="display:none;"></div>
+    <h2 id="proc-title">Processing payment…</h2>
+    <p id="proc-msg">Please wait, do not close this page.</p>
+  </div>
 
   <header>
     <button class="back-btn" onclick="window.location.href='/frontend/cart.html'">&#8592;</button>
@@ -335,29 +317,17 @@
     </div>
   </header>
 
-  <div style="max-width:960px;margin:60px auto;padding:0 20px;" id="loading-screen">
+  <div id="loading-screen" style="max-width:960px;margin:60px auto;padding:0 20px;">
     <div class="spinner"></div>
-  </div>
-
-  <!-- Success screen -->
-  <div style="max-width:600px;margin:0 auto;" id="success-screen">
-    <div class="success-icon">✅</div>
-    <h2>Order Placed!</h2>
-    <p>Your order has been confirmed and sent to the restaurant.</p>
-    <p style="margin-top:6px;">Your Order ID:</p>
-    <div class="order-id-box" id="success-order-id"></div>
-    <br>
-    <a class="btn-home" href="/frontend/index.html">Back to Restaurants</a>
   </div>
 
   <div class="layout" id="checkout-layout" style="display:none;">
 
     <!-- LEFT COLUMN -->
     <div>
-
       <div class="alert" id="alert"></div>
 
-      <!-- 1. Delivery Address -->
+      <!-- Step 1: Address -->
       <div class="card">
         <div class="card-title"><span class="step">1</span> Delivery Address</div>
         <div class="form-row">
@@ -386,85 +356,84 @@
         </div>
       </div>
 
-      <!-- 2. Promotions -->
+      <!-- Step 2: Promotions -->
       <div class="card">
         <div class="card-title"><span class="step">2</span> Promotions</div>
-        <div id="promo-loading" style="color:#aaa;font-size:0.9rem;">Checking for promotions…</div>
-        <div id="promo-content" style="display:none;"></div>
+        <div class="promo-banner">
+          <span style="font-size:1.3rem;">🏷️</span>
+          <div>
+            <strong>Promotions are applied automatically at checkout.</strong><br/>
+            Any active discounts will be reflected in your final total.
+          </div>
+        </div>
       </div>
 
-      <!-- 3. Payment -->
+      <!-- Step 3: Payment -->
       <div class="card">
         <div class="card-title"><span class="step">3</span> Payment Method</div>
 
         <div class="payment-grid">
           <div class="pay-option">
             <input type="radio" name="payment" id="pay-card" value="card" checked />
-            <label for="pay-card">
-              <span class="pay-icon">💳</span>
-              Credit / Debit Card
-            </label>
+            <label for="pay-card"><span class="pay-icon">💳</span>Card</label>
           </div>
           <div class="pay-option">
             <input type="radio" name="payment" id="pay-apple" value="apple_pay" />
-            <label for="pay-apple">
-              <span class="pay-icon">🍎</span>
-              Apple Pay
-            </label>
+            <label for="pay-apple"><span class="pay-icon">🍎</span>Apple Pay</label>
           </div>
           <div class="pay-option">
             <input type="radio" name="payment" id="pay-paypal" value="paypal" />
-            <label for="pay-paypal">
-              <span class="pay-icon">🅿️</span>
-              PayPal
-            </label>
+            <label for="pay-paypal"><span class="pay-icon">🅿️</span>PayPal</label>
           </div>
         </div>
 
-        <!-- Card details (only shown when card is selected) -->
+        <!-- Card fields -->
         <div id="card-fields" class="visible">
+          <!-- Live card preview -->
+          <div class="card-preview">
+            <div style="font-size:0.75rem;opacity:0.7;">FOOD DELIVERY APP</div>
+            <div class="card-number-display" id="preview-number">•••• •••• •••• ••••</div>
+            <div class="card-meta">
+              <div><div style="font-size:0.65rem;opacity:0.6;">EXPIRES</div><span id="preview-expiry">MM/YY</span></div>
+              <div><div style="font-size:0.65rem;opacity:0.6;">CVV</div><span id="preview-cvv">•••</span></div>
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="card-number">Card Number</label>
             <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" />
+            <div class="hint">Enter any 16-digit number</div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label for="card-expiry">Expiry (MM/YY)</label>
-              <input type="text" id="card-expiry" placeholder="08/27" maxlength="5" />
+              <input type="text" id="card-expiry" placeholder="12/28" maxlength="5" />
+              <div class="hint">Any future date</div>
             </div>
             <div class="form-group">
               <label for="card-cvv">CVV</label>
               <input type="text" id="card-cvv" placeholder="123" maxlength="3" />
+              <div class="hint">Any 3 digits</div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- RIGHT COLUMN: Order Summary -->
     <div class="summary-sticky">
       <div class="card">
         <div class="card-title">Order Summary</div>
-
         <div id="summary-items"></div>
-
         <hr class="divider" />
-
         <div class="summary-row"><span>Subtotal</span><span id="sum-subtotal">$0.00</span></div>
-        <div class="summary-row discount" id="sum-discount-row" style="display:none;">
-          <span id="sum-discount-label">Discount</span>
-          <span id="sum-discount">-$0.00</span>
-        </div>
         <div class="summary-row"><span>Delivery Fee</span><span>$2.50</span></div>
         <div class="summary-row"><span>PST (7%)</span><span id="sum-pst">$0.00</span></div>
         <div class="summary-row"><span>GST (5%)</span><span id="sum-gst">$0.00</span></div>
         <div class="summary-row total"><span>Total</span><span id="sum-total">$0.00</span></div>
-
         <button class="btn-place" id="place-btn" onclick="placeOrder()">Place Order</button>
       </div>
     </div>
-
   </div>
 
   <script>
@@ -480,7 +449,7 @@
 
     const foodIcons = ['🍕','🍔','🌮','🍜','🍱','🥗','🍣','🥘','🌯','🍛'];
     function iconFor(name) {
-      const n = (name || '').toLowerCase();
+      const n = (name||'').toLowerCase();
       if (n.includes('pizza'))  return '🍕';
       if (n.includes('burger')) return '🍔';
       if (n.includes('taco') || n.includes('burrito')) return '🌮';
@@ -490,7 +459,7 @@
       if (n.includes('rice'))   return '🍚';
       if (n.includes('cake') || n.includes('dessert')) return '🍰';
       if (n.includes('soup'))   return '🍲';
-      return foodIcons[Math.abs((name.charCodeAt(0) || 0)) % foodIcons.length];
+      return foodIcons[Math.abs((name||'a').charCodeAt(0)) % foodIcons.length];
     }
 
     function showAlert(msg, type) {
@@ -498,28 +467,75 @@
       el.textContent = msg;
       el.className = `alert ${type}`;
       el.style.display = 'block';
-      if (type === 'error') el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    function setProcessing(title, msg, icon) {
+      const ov = document.getElementById('processing-overlay');
+      document.getElementById('proc-title').textContent = title;
+      document.getElementById('proc-msg').textContent   = msg;
+      if (icon) {
+        document.getElementById('proc-icon').textContent  = icon;
+        document.getElementById('proc-icon').style.display = 'block';
+        ov.querySelector('.proc-spinner').style.display = 'none';
+      } else {
+        document.getElementById('proc-icon').style.display = 'none';
+        ov.querySelector('.proc-spinner').style.display = 'block';
+      }
+      ov.classList.add('visible');
+    }
+
+    function hideProcessing() {
+      document.getElementById('processing-overlay').classList.remove('visible');
+    }
+
+    // ── Card preview live updates ──────────────────────────────────────────
+    document.getElementById('card-number').addEventListener('input', function() {
+      let v = this.value.replace(/\D/g,'').slice(0,16);
+      this.value = v.match(/.{1,4}/g)?.join(' ') || v;
+      const display = v.padEnd(16,'•').match(/.{1,4}/g).join(' ');
+      document.getElementById('preview-number').textContent = display;
+    });
+
+    document.getElementById('card-expiry').addEventListener('input', function() {
+      let v = this.value.replace(/\D/g,'').slice(0,4);
+      if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+      this.value = v;
+      document.getElementById('preview-expiry').textContent = v || 'MM/YY';
+    });
+
+    document.getElementById('card-cvv').addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g,'').slice(0,3);
+      document.getElementById('preview-cvv').textContent = '•'.repeat(this.value.length) || '•••';
+    });
+
+    // Toggle card fields
+    document.querySelectorAll('input[name="payment"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('card-fields').className =
+          r.value === 'card' ? 'visible' : '';
+      });
+    });
+
+    // ── Summary ────────────────────────────────────────────────────────────
     function renderSummary(cart) {
       const subtotal = cart.total;
-      const pst      = subtotal * PST;
-      const gst      = subtotal * GST;
-      const total    = subtotal + pst + gst + DELIVERY_FEE;
+      const pst = subtotal * PST;
+      const gst = subtotal * GST;
+      const total = subtotal + pst + gst + DELIVERY_FEE;
 
-      // Items
-      const itemsEl = document.getElementById('summary-items');
-      itemsEl.innerHTML = '';
-      (cart.items || []).forEach(item => {
+      const el = document.getElementById('summary-items');
+      el.innerHTML = '';
+      (cart.items||[]).forEach(item => {
         const row = document.createElement('div');
         row.className = 'summary-item';
         row.innerHTML = `
-          <span class="summary-item-icon">${iconFor(item.name)}</span>
+          <span>${iconFor(item.name)}</span>
           <span class="summary-item-name">${item.name}</span>
           <span class="summary-item-qty">×${item.quantity}</span>
           <span class="summary-item-price">$${parseFloat(item.subtotal).toFixed(2)}</span>
         `;
-        itemsEl.appendChild(row);
+        el.appendChild(row);
       });
 
       document.getElementById('sum-subtotal').textContent = `$${subtotal.toFixed(2)}`;
@@ -528,54 +544,9 @@
       document.getElementById('sum-total').textContent    = `$${total.toFixed(2)}`;
     }
 
-    async function loadPromotions() {
-      const promoEl = document.getElementById('promo-content');
-      const loadEl  = document.getElementById('promo-loading');
-
-      // The promotion service stores promotions in memory server-side.
-      // Display any active order promotions fetched via their IDs, or
-      // show a friendly message if none are available.
-      loadEl.style.display = 'none';
-      promoEl.style.display = 'block';
-      promoEl.innerHTML = `
-        <div class="promo-banner">
-          <span class="promo-icon">🏷️</span>
-          <div>
-            <strong>Promotions are applied automatically at checkout.</strong><br/>
-            Any active order or item discounts will be reflected in your final total.
-          </div>
-        </div>
-      `;
-    }
-
-    // Toggle card fields visibility
-    document.querySelectorAll('input[name="payment"]').forEach(radio => {
-      radio.addEventListener('change', () => {
-        const cardFields = document.getElementById('card-fields');
-        if (radio.value === 'card' && radio.checked) {
-          cardFields.classList.add('visible');
-        } else {
-          cardFields.classList.remove('visible');
-        }
-      });
-    });
-
-    // Card number formatting (add spaces every 4 digits)
-    document.getElementById('card-number').addEventListener('input', function () {
-      let val = this.value.replace(/\D/g, '').slice(0, 16);
-      this.value = val.match(/.{1,4}/g)?.join(' ') || val;
-    });
-
-    // Expiry formatting (MM/YY)
-    document.getElementById('card-expiry').addEventListener('input', function () {
-      let val = this.value.replace(/\D/g, '').slice(0, 4);
-      if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
-      this.value = val;
-    });
-
+    // ── Validation ─────────────────────────────────────────────────────────
     function validateAddress() {
-      const fields = ['addr-name', 'addr-phone', 'addr-street', 'addr-city', 'addr-postal'];
-      for (const id of fields) {
+      for (const id of ['addr-name','addr-phone','addr-street','addr-city','addr-postal']) {
         if (!document.getElementById(id).value.trim()) {
           showAlert('Please fill in all delivery address fields.', 'error');
           document.getElementById(id).focus();
@@ -585,121 +556,115 @@
       return true;
     }
 
-    function validatePayment(method) {
-      if (method === 'card') {
-        const num    = document.getElementById('card-number').value.replace(/\s/g, '');
-        const expiry = document.getElementById('card-expiry').value.trim();
-        const cvv    = document.getElementById('card-cvv').value.trim();
-        if (!num || !expiry || !cvv) {
-          showAlert('Please fill in all card details.', 'error');
-          return false;
-        }
-        if (num.length < 13 || num.length > 16) {
-          showAlert('Card number must be 13–16 digits.', 'error');
-          return false;
-        }
-        if (!/^\d{2}\/\d{2}$/.test(expiry)) {
-          showAlert('Expiry must be in MM/YY format.', 'error');
-          return false;
-        }
-        if (cvv.length < 3) {
-          showAlert('CVV must be 3 digits.', 'error');
-          return false;
-        }
-      }
+    function validateCard(method) {
+      if (method !== 'card') return true;
+      const num    = document.getElementById('card-number').value.replace(/\s/g,'');
+      const expiry = document.getElementById('card-expiry').value.trim();
+      const cvv    = document.getElementById('card-cvv').value.trim();
+      if (num.length !== 16) { showAlert('Card number must be exactly 16 digits.', 'error'); return false; }
+      if (!/^\d{2}\/\d{2}$/.test(expiry)) { showAlert('Expiry must be MM/YY format (e.g. 12/28).', 'error'); return false; }
+      if (cvv.length !== 3) { showAlert('CVV must be exactly 3 digits.', 'error'); return false; }
       return true;
     }
 
+    // ── Place order ─────────────────────────────────────────────────────────
     async function placeOrder() {
       if (!validateAddress()) return;
-
       const method = document.querySelector('input[name="payment"]:checked').value;
-      if (!validatePayment(method)) return;
+      if (!validateCard(method)) return;
 
       const btn = document.getElementById('place-btn');
       btn.disabled = true;
-      btn.textContent = 'Placing order…';
+
+      const subtotal = cartData.total;
+      const paymentAmount = subtotal * (1 + PST + GST) + DELIVERY_FEE;
 
       try {
-        // Step 1: Convert cart to order
-        const checkoutRes = await fetch(`${API_BASE}/cart/${customerId}/checkout`, { method: 'POST' });
+        // Step 1: Checkout cart → create PENDING order
+        setProcessing('Creating your order…', 'Sending items to the restaurant.', null);
+        const checkoutRes  = await fetch(`${API_BASE}/cart/${customerId}/checkout`, { method: 'POST' });
         const checkoutData = await checkoutRes.json();
-
-        if (!checkoutRes.ok) {
-          showAlert(checkoutData.detail || 'Checkout failed. Please try again.', 'error');
-          return;
-        }
+        if (!checkoutRes.ok) { hideProcessing(); showAlert(checkoutData.detail || 'Checkout failed.', 'error'); btn.disabled = false; return; }
 
         const orderId      = checkoutData.order_id;
         const restaurantId = checkoutData.restaurant_id;
-        const orderTotal   = checkoutData.total;
 
-        // Step 2: Compute exact payment amount
-        const paymentAmount = orderTotal * (1 + PST + GST) + DELIVERY_FEE;
-
-        // Build payment payload
-        const payload = {
+        // Step 2: Process payment
+        setProcessing('Processing payment…', 'Please wait, do not close this page.', null);
+        const payPayload = {
           customer_id:   customerId,
           restaurant_id: String(restaurantId),
           amount:        paymentAmount,
-          method:        method,
+          method,
         };
-
         if (method === 'card') {
-          payload.card_number = document.getElementById('card-number').value.replace(/\s/g, '');
-          payload.expiry      = document.getElementById('card-expiry').value.trim();
-          payload.cvv         = document.getElementById('card-cvv').value.trim();
+          payPayload.card_number = document.getElementById('card-number').value.replace(/\s/g,'');
+          payPayload.expiry      = document.getElementById('card-expiry').value.trim();
+          payPayload.cvv         = document.getElementById('card-cvv').value.trim();
         }
 
-        // Step 3: Process payment
         const payRes  = await fetch(`${API_BASE}/payment/${orderId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payPayload)
         });
         const payData = await payRes.json();
 
-        if (!payRes.ok) {
-          showAlert(payData.detail || 'Payment failed. Please check your details.', 'error');
+        if (!payRes.ok) { hideProcessing(); showAlert(payData.detail || 'Payment failed.', 'error'); btn.disabled = false; return; }
+        if (payData.status === 'declined') { hideProcessing(); showAlert('Payment declined. Please check your card details.', 'error'); btn.disabled = false; return; }
+
+        // Step 3: Assign delivery (order is now PREPARING after payment)
+        setProcessing('Creating delivery…', 'Waiting for a driver to accept your order.', null);
+        const deliveryRes = await fetch(`${API_BASE}/deliveries/${orderId}/assign`, { method: 'POST' });
+        if (!deliveryRes.ok) {
+          const deliveryData = await deliveryRes.json().catch(() => ({}));
+          hideProcessing();
+          showAlert(deliveryData.detail || 'Could not create delivery. Please try again.', 'error');
+          btn.disabled = false;
           return;
         }
 
-        if (payData.status === 'declined') {
-          showAlert('Payment was declined. Please check your card details and try again.', 'error');
-          return;
-        }
+        // Step 4: Show success then redirect (no driver pre-assigned — driver accepts from their portal)
+        setProcessing('Order confirmed! 🎉', 'Redirecting to your order tracking page…', '✅');
 
-        // Success
-        document.getElementById('checkout-layout').style.display = 'none';
-        const successScreen = document.getElementById('success-screen');
-        successScreen.style.display = 'block';
-        document.getElementById('success-order-id').textContent = orderId;
+        const address = [
+          document.getElementById('addr-street').value,
+          document.getElementById('addr-city').value,
+          document.getElementById('addr-postal').value,
+        ].join(', ');
+
+        localStorage.setItem('last_order', JSON.stringify({
+          order_id:      orderId,
+          restaurant_id: restaurantId,
+          items:         cartData.items,
+          subtotal:      cartData.total,
+          payment_amount: paymentAmount,
+          method,
+          driver:        null,
+          address,
+          placed_at:     new Date().toISOString(),
+        }));
+
+        setTimeout(() => { window.location.href = '/frontend/order-confirmation.html'; }, 1400);
 
       } catch (err) {
+        hideProcessing();
         showAlert('Something went wrong. Please try again.', 'error');
-      } finally {
         btn.disabled = false;
-        btn.textContent = 'Place Order';
       }
     }
 
+    // ── Init ────────────────────────────────────────────────────────────────
     async function init() {
-      if (!customerId) return;
       try {
         const res = await fetch(`${API_BASE}/cart/${customerId}`);
-        cartData = await res.json();
-
+        cartData  = await res.json();
         if (!cartData.items || cartData.items.length === 0) {
-          window.location.href = '/frontend/cart.html';
-          return;
+          window.location.href = '/frontend/cart.html'; return;
         }
-
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('checkout-layout').style.display = 'grid';
-
         renderSummary(cartData);
-        loadPromotions();
-
       } catch (err) {
         document.getElementById('loading-screen').innerHTML =
           '<p style="text-align:center;color:#e63946;padding:60px 20px;">Failed to load cart. <a href="/frontend/cart.html">Go back</a></p>';
