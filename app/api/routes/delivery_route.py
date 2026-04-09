@@ -17,19 +17,8 @@ def assign_delivery(order_id: str):
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    if isinstance(order, dict):
-        row = order
-    else:
-        if order.empty:
-            raise HTTPException(status_code=404, detail="Order not found")
-        row = order.iloc[0]
-
-    order = Order(
-        order_id=str(row["order_id"]),
-        customer_id=str(row["customer_id"]),
-        restaurant_id=str(row["restaurant_id"])
-    )
-    order.update_status(OrderStatus.PREPARING)
+    if not order.status.can_deliver():
+        raise HTTPException(status_code=400, detail=f"Order must be PREPARING to assign delivery (current: {order.status.value})")
 
     try:
         delivery = delivery_service.assign_delivery(order)
