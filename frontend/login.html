@@ -236,11 +236,20 @@
           return;
         }
 
-        // Store token and redirect
+        // Store token and redirect based on role
         localStorage.setItem('token', data.token);
         localStorage.setItem('user_id', user_id);
-        showAlert('Login successful! Redirecting…', 'success');
-        setTimeout(() => { window.location.href = '/frontend/index.html'; }, 800);
+        localStorage.setItem('role', data.role);
+
+        const destinations = {
+          'customer':          '/frontend/index.html',
+          'driver':            '/frontend/driver-dashboard.html',
+          'restaurant_owner':  '/frontend/index.html',
+        };
+
+        const redirect = destinations[data.role] || '/frontend/index.html';
+        showAlert(`Login successful! Redirecting…`, 'success');
+        setTimeout(() => { window.location.href = redirect; }, 800);
 
       } catch (err) {
         showAlert('Could not connect to the server.', 'error');

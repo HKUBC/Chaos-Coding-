@@ -31,7 +31,8 @@ def sign_up(request: SignUpRequest):
 def login(request: LoginRequest):
     try:
         token = service.login(request.user_id, request.password)
-        return {"token": token}
+        role  = service.get_role(token).value
+        return {"token": token, "role": role}
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
 

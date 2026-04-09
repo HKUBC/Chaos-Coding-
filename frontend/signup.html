@@ -306,7 +306,16 @@
         const data = await res.json();
 
         if (!res.ok) {
-          showAlert(data.detail || 'Sign up failed. Please try again.', 'error');
+          const msg = data.detail || 'Sign up failed. Please try again.';
+          showAlert(msg, 'error');
+          // Highlight the username field if it's a duplicate
+          if (msg.toLowerCase().includes('taken') || msg.toLowerCase().includes('already')) {
+            const input = document.getElementById('user_id');
+            input.style.borderColor = '#e63946';
+            input.focus();
+            input.select();
+            input.addEventListener('input', () => { input.style.borderColor = ''; }, { once: true });
+          }
           return;
         }
 

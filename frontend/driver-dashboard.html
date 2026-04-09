@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Dashboard – Food Delivery App</title>
+
+  <!-- Leaflet map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      color: white;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    header h1 { font-size: 1.3rem; font-weight: 700; }
+    header .subtitle { font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+    .status-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      color: white;
+      transition: background 0.2s;
+    }
+
+    .status-toggle:hover { background: rgba(255,255,255,0.2); }
+
+    .status-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #ff4444;
+      transition: background 0.3s;
+    }
+
+    .status-dot.online { background: #44ff88; }
+
+    .header-btn {
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: white;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 7px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .header-btn:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── MAP ── */
+    #map {
+      width: 100%;
+      height: 280px;
+      z-index: 1;
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      background: white;
+      border-bottom: 1px solid #e8e8e8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .stat {
+      padding: 16px 20px;
+      text-align: center;
+      border-right: 1px solid #f0f0f0;
+    }
+
+    .stat:last-child { border-right: none; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: #1a1a2e; }
+    .stat-label { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 800px) {
+      .main { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .badge {
+      background: #e63946;
+      color: white;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    /* ── DELIVERY ITEMS ── */
+    .delivery-item {
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .delivery-item:hover { border-color: #0f3460; }
+    .delivery-item.active-delivery { border-color: #0f3460; background: #f0f4ff; }
+
+    .delivery-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .delivery-id { font-size: 0.78rem; color: #888; font-family: monospace; }
+    .delivery-restaurant { font-weight: 600; font-size: 0.92rem; }
+    .delivery-meta { font-size: 0.78rem; color: #888; margin-top: 4px; }
+
+    .delivery-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+    .btn-accept {
+      flex: 1;
+      padding: 8px 12px;
+      background: #0f3460;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-accept:hover { background: #1a1a2e; }
+
+    .btn-status {
+      flex: 1;
+      padding: 8px 12px;
+      background: #e63946;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-status:hover { background: #c1121f; }
+    .btn-status.delivered { background: #2d6a4f; }
+    .btn-status.delivered:hover { background: #1b4332; }
+
+    .btn-sm-outline {
+      padding: 6px 12px;
+      border: 1.5px solid #ddd;
+      background: white;
+      color: #555;
+      border-radius: 7px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .btn-sm-outline:hover { border-color: #e63946; color: #e63946; }
+
+    /* ── STATUS PILLS ── */
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .pill.pending    { background: #fff3cd; color: #856404; }
+    .pill.assigned   { background: #cce5ff; color: #004085; }
+    .pill.delivering { background: #fff0f1; color: #c1121f; }
+    .pill.delivered  { background: #d4edda; color: #155724; }
+
+    /* ── NOTIFICATIONS ── */
+    .notif-item {
+      padding: 12px 14px;
+      background: #f8f9fc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border-left: 3px solid #0f3460;
+      font-size: 0.85rem;
+      color: #444;
+    }
+
+    .notif-item.closest {
+      border-left-color: #e63946;
+      background: #fff0f1;
+    }
+
+    .notif-item .notif-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #e63946;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .notif-item .notif-msg { color: #333; }
+    .notif-item .notif-time { font-size: 0.72rem; color: #aaa; margin-top: 4px; }
+
+    /* ── RESTAURANTS ── */
+    .restaurant-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .restaurant-item:last-child { border-bottom: none; }
+    .rest-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .rest-name { font-size: 0.88rem; font-weight: 600; color: #1a1a2e; }
+    .rest-id   { font-size: 0.75rem; color: #aaa; }
+
+    /* ── HISTORY TABLE ── */
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .history-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: #f8f9fc;
+      color: #555;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-bottom: 1px solid #eee;
+    }
+
+    .history-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #444;
+    }
+
+    .history-table tr:last-child td { border-bottom: none; }
+
+    /* ── EMPTY / SPINNER ── */
+    .empty { text-align: center; padding: 30px 20px; color: #bbb; font-size: 0.9rem; }
+    .empty .empty-icon { font-size: 2rem; margin-bottom: 8px; }
+
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid #eee;
+      border-top-color: #0f3460;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ORDER SEARCH ── */
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .search-row input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .search-row input:focus { border-color: #0f3460; }
+
+    .search-row button {
+      padding: 9px 16px;
+      background: #0f3460;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .alert.error   { background: #fff0f1; border: 1px solid #f4a0a7; color: #c1121f; }
+    .alert.success { background: #f0fff4; border: 1px solid #9ae6b4; color: #276749; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <span style="font-size:1.6rem;">🚗</span>
+    <div>
+      <div class="subtitle">Driver Dashboard</div>
+      <h1 id="driver-name">Loading…</h1>
+    </div>
+    <div class="header-right">
+      <button class="status-toggle" id="status-toggle" onclick="toggleStatus()">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-label">Offline</span>
+      </button>
+      <a class="header-btn" href="/frontend/index.html">🏠 Home</a>
+      <button class="header-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- MAP -->
+  <div id="map"></div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value" id="stat-active">0</div>
+      <div class="stat-label">Active Deliveries</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-completed">0</div>
+      <div class="stat-label">Completed Today</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-notifs">0</div>
+      <div class="stat-label">Notifications</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="stat-restaurants">—</div>
+      <div class="stat-label">Restaurants Nearby</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- LEFT COLUMN -->
+    <div>
+      <div class="alert" id="alert"></div>
+
+      <!-- Active Deliveries -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🚚 Start Delivering <span class="badge" id="delivery-count">0</span></div>
+          <button class="btn-sm-outline" onclick="loadAvailableDeliveries()">↻ Refresh</button>
+        </div>
+
+        <div class="search-row">
+          <input type="text" id="order-search" placeholder="Enter Order ID to look up…" />
+          <button onclick="lookupDelivery()">Search</button>
+        </div>
+
+        <div id="deliveries-list">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Current Delivery -->
+      <div class="card" id="current-delivery-card" style="display:none;">
+        <div class="card-header">
+          <div class="card-title">📍 Current Delivery</div>
+          <span class="pill delivering" id="current-status">Delivering</span>
+        </div>
+        <div id="current-delivery-info"></div>
+      </div>
+
+      <!-- Order History -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Order History</div>
+        </div>
+        <div id="history-content">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Restaurant</th>
+                <th>Distance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <tr><td colspan="4" style="text-align:center;color:#bbb;padding:20px;">No deliveries yet today.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+
+      <!-- Notifications -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔔 Notifications <span class="badge" id="notif-count">0</span></div>
+          <button class="btn-sm-outline" onclick="loadNotifications()">↻</button>
+        </div>
+        <div id="notif-list">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Nearby Restaurants -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🍽️ Restaurants</div>
+        </div>
+        <div id="restaurant-list">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_BASE  = 'http://localhost:8000';
+    const driverId  = localStorage.getItem('user_id');
+    const role      = localStorage.getItem('role');
+
+    if (!driverId || role !== 'driver') window.location.href = '/frontend/login.html';
+
+    let isOnline       = false;
+    let map            = null;
+    let driverMarker   = null;
+    let restaurantMarkers = [];
+    let completedCount = 0;
+    let activeDeliveries = [];
+
+    // ── INIT ──────────────────────────────────────────────────────────────
+    async function init() {
+      document.getElementById('driver-name').textContent = driverId;
+
+      // Register driver in driver service (safe to call multiple times — server deduplicates)
+      try {
+        await fetch(`${API_BASE}/drivers/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ driver_id: driverId, name: driverId })
+        });
+      } catch (_) {}
+
+      initMap();
+      loadNotifications();
+      loadRestaurants();
+      loadAvailableDeliveries();
+    }
+
+    // ── MAP ───────────────────────────────────────────────────────────────
+    function initMap() {
+      map = L.map('map').setView([49.2827, -123.1207], 13); // Vancouver
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Driver marker
+      const driverIcon = L.divIcon({
+        html: '<div style="font-size:1.8rem;line-height:1;">🚗</div>',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+        className: ''
+      });
+
+      driverMarker = L.marker([49.2827, -123.1207], { icon: driverIcon })
+        .addTo(map)
+        .bindPopup(`<strong>${driverId}</strong><br/>Your location`);
+
+      // Try to get real location
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          driverMarker.setLatLng([lat, lng]);
+          map.setView([lat, lng], 14);
+        }, () => {});
+      }
+    }
+
+    function addRestaurantMarkers(ids) {
+      restaurantMarkers.forEach(m => map.removeLayer(m));
+      restaurantMarkers = [];
+
+      const restIcon = L.divIcon({
+        html: '<div style="font-size:1.4rem;line-height:1;">🍽️</div>',
+        iconSize: [28, 28], iconAnchor: [14, 14], className: ''
+      });
+
+      // Place markers around the driver position with slight offsets
+      ids.slice(0, 15).forEach((id, i) => {
+        const angle = (i / ids.length) * 2 * Math.PI;
+        const radius = 0.01 + (i % 3) * 0.007;
+        const lat = 49.2827 + radius * Math.cos(angle);
+        const lng = -123.1207 + radius * Math.sin(angle);
+        const m = L.marker([lat, lng], { icon: restIcon })
+          .addTo(map)
+          .bindPopup(`<strong>Restaurant #${id}</strong>`);
+        restaurantMarkers.push(m);
+      });
+    }
+
+    // ── STATUS TOGGLE ─────────────────────────────────────────────────────
+    function toggleStatus() {
+      isOnline = !isOnline;
+      document.getElementById('status-dot').className   = `status-dot ${isOnline ? 'online' : ''}`;
+      document.getElementById('status-label').textContent = isOnline ? 'Online' : 'Offline';
+      showAlert(isOnline ? 'You are now online and accepting deliveries.' : 'You are now offline.', isOnline ? 'success' : 'error');
+    }
+
+    // ── NOTIFICATIONS ─────────────────────────────────────────────────────
+    async function loadNotifications() {
+      const el = document.getElementById('notif-list');
+      try {
+        const res  = await fetch(`${API_BASE}/notifications/${driverId}`);
+        const data = await res.json();
+        const notifs = Array.isArray(data) ? data : (data.notifications || []);
+
+        document.getElementById('notif-count').textContent = notifs.length;
+        document.getElementById('stat-notifs').textContent = notifs.length;
+
+        if (notifs.length === 0) {
+          el.innerHTML = '<div class="empty"><div class="empty-icon">🔕</div>No new notifications</div>';
+          return;
+        }
+
+        el.innerHTML = '';
+        notifs.forEach((n, i) => {
+          const div = document.createElement('div');
+          div.className = `notif-item ${i === 0 ? 'closest' : ''}`;
+          const msg = n.message || (typeof n === 'string' ? n : JSON.stringify(n));
+          div.innerHTML = `
+            ${i === 0 ? '<div class="notif-tag">📍 Closest Delivery</div>' : ''}
+            <div class="notif-msg">${msg}</div>
+            <div class="notif-time">Just now</div>
+          `;
+          el.appendChild(div);
+        });
+      } catch (_) {
+        el.innerHTML = '<div class="empty">Could not load notifications.</div>';
+      }
+    }
+
+    // ── RESTAURANTS ───────────────────────────────────────────────────────
+    async function loadRestaurants() {
+      const el = document.getElementById('restaurant-list');
+      try {
+        const res  = await fetch(`${API_BASE}/restaurants/all_restaurants`);
+        const ids  = await res.json();
+
+        document.getElementById('stat-restaurants').textContent = ids.length;
+        addRestaurantMarkers(ids);
+
+        el.innerHTML = '';
+        ids.slice(0, 10).forEach(id => {
+          const div = document.createElement('div');
+          div.className = 'restaurant-item';
+          div.innerHTML = `
+            <span class="rest-icon">🍽️</span>
+            <div>
+              <div class="rest-name">Restaurant #${id}</div>
+              <div class="rest-id">ID: ${id}</div>
+            </div>
+          `;
+          el.appendChild(div);
+        });
+
+        if (ids.length > 10) {
+          el.innerHTML += `<div style="text-align:center;font-size:0.8rem;color:#aaa;padding:8px 0;">+${ids.length - 10} more restaurants</div>`;
+        }
+      } catch (_) {
+        el.innerHTML = '<div class="empty">Could not load restaurants.</div>';
+      }
+    }
+
+    // ── AVAILABLE DELIVERIES ──────────────────────────────────────────────
+    async function loadAvailableDeliveries() {
+      const el = document.getElementById('deliveries-list');
+      el.innerHTML = '<div class="spinner"></div>';
+
+      // The delivery API is order-based. Show a prompt to look up
+      // order IDs and sample orders from CSV data.
+      const sampleOrderIds = ['1d8e87M', 'SN4785', 'TK9021', 'BR3312'];
+
+      const results = [];
+      for (const orderId of sampleOrderIds) {
+        try {
+          const res = await fetch(`${API_BASE}/deliveries/${orderId}`);
+          if (res.ok) {
+            const d = await res.json();
+            results.push({ order_id: orderId, ...d });
+          }
+        } catch (_) {}
+      }
+
+      activeDeliveries = results;
+      document.getElementById('delivery-count').textContent = results.length;
+      document.getElementById('stat-active').textContent    = results.length;
+
+      el.innerHTML = '';
+
+      if (results.length === 0) {
+        el.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            No active deliveries found. Use the search above to look up an order ID.
+          </div>`;
+        return;
+      }
+
+      results.forEach(d => renderDeliveryItem(el, d));
+    }
+
+    function renderDeliveryItem(container, d) {
+      const div = document.createElement('div');
+      div.className = 'delivery-item';
+      div.id = `delivery-${d.order_id}`;
+      div.innerHTML = `
+        <div class="delivery-row">
+          <div>
+            <div class="delivery-id">#${d.order_id}</div>
+            <div class="delivery-restaurant">Order ${d.order_id}</div>
+            <div class="delivery-meta">Delivery ID: ${d.delivery_id || '—'}</div>
+          </div>
+          <span class="pill assigned">Assigned</span>
+        </div>
+        <div class="delivery-actions">
+          <button class="btn-accept" onclick="acceptDelivery('${d.order_id}', '${d.delivery_id || ''}')">Accept & Start</button>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    // ── LOOKUP DELIVERY ───────────────────────────────────────────────────
+    async function lookupDelivery() {
+      const orderId = document.getElementById('order-search').value.trim();
+      if (!orderId) return;
+
+      try {
+        const [delRes, timeRes, distRes] = await Promise.all([
+          fetch(`${API_BASE}/deliveries/${orderId}`),
+          fetch(`${API_BASE}/deliveries/${orderId}/time`),
+          fetch(`${API_BASE}/deliveries/${orderId}/distance`)
+        ]);
+
+        if (!delRes.ok) { showAlert(`Order #${orderId} not found.`, 'error'); return; }
+
+        const del  = await delRes.json();
+        const time = timeRes.ok  ? (await timeRes.json()).delivery_time   : '—';
+        const dist = distRes.ok  ? (await distRes.json()).delivery_distance : '—';
+
+        const el  = document.getElementById('deliveries-list');
+        const div = document.createElement('div');
+        div.className = 'delivery-item';
+        div.innerHTML = `
+          <div class="delivery-row">
+            <div>
+              <div class="delivery-id">#${orderId}</div>
+              <div class="delivery-restaurant">Delivery #${del.delivery_id}</div>
+              <div class="delivery-meta">⏱ ${time} min &nbsp;·&nbsp; 📍 ${dist} km</div>
+            </div>
+            <span class="pill assigned">Found</span>
+          </div>
+          <div class="delivery-actions">
+            <button class="btn-accept" onclick="acceptDelivery('${orderId}', '${del.delivery_id}')">Accept & Start</button>
+          </div>
+        `;
+        el.prepend(div);
+        showAlert(`Order #${orderId} found!`, 'success');
+
+      } catch (_) {
+        showAlert('Could not look up that order.', 'error');
+      }
+    }
+
+    // ── ACCEPT DELIVERY ───────────────────────────────────────────────────
+    async function acceptDelivery(orderId, deliveryId) {
+      try {
+        // Assign this driver to the delivery
+        const res = await fetch(`${API_BASE}/drivers/${driverId}/assign/${orderId}`, { method: 'POST' });
+
+        if (!res.ok && res.status !== 400) {
+          showAlert('Could not accept delivery.', 'error'); return;
+        }
+
+        // Update status to delivering
+        await fetch(`${API_BASE}/deliveries/${orderId}/update_status?status=delivering`, { method: 'PUT' });
+
+        showAlert(`Delivery #${orderId} accepted! Head to the restaurant.`, 'success');
+        showCurrentDelivery(orderId);
+        addToHistory(orderId, 'Delivering');
+
+        // Remove from available list
+        const item = document.getElementById(`delivery-${orderId}`);
+        if (item) item.remove();
+
+      } catch (_) {
+        showAlert('Error accepting delivery.', 'error');
+      }
+    }
+
+    // ── CURRENT DELIVERY ──────────────────────────────────────────────────
+    function showCurrentDelivery(orderId) {
+      document.getElementById('current-delivery-card').style.display = 'block';
+      document.getElementById('current-delivery-info').innerHTML = `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:0.8rem;color:#888;">Order ID</div>
+          <div style="font-weight:700;font-family:monospace;">#${orderId}</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <div style="flex:1;background:#f8f9fc;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:1.2rem;">⏱</div>
+            <div style="font-size:0.75rem;color:#888;">Est. Time</div>
+            <div style="font-weight:700;">~25 min</div>
+          </div>
+          <div style="flex:1;background:#f8f9fc;border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:1.2rem;">📍</div>
+            <div style="font-size:0.75rem;color:#888;">Distance</div>
+            <div style="font-weight:700;">~3.2 km</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-status" onclick="updateStatus('${orderId}', 'delivering')">📦 Picked Up</button>
+          <button class="btn-status delivered" onclick="markDelivered('${orderId}')">✅ Delivered</button>
+        </div>
+      `;
+    }
+
+    async function updateStatus(orderId, status) {
+      try {
+        await fetch(`${API_BASE}/deliveries/${orderId}/update_status?status=${status}`, { method: 'PUT' });
+        showAlert(`Status updated to ${status}.`, 'success');
+      } catch (_) {}
+    }
+
+    async function markDelivered(orderId) {
+      try {
+        await fetch(`${API_BASE}/deliveries/${orderId}/update_status?status=delivered`, { method: 'PUT' });
+        document.getElementById('current-delivery-card').style.display = 'none';
+        completedCount++;
+        document.getElementById('stat-completed').textContent = completedCount;
+        showAlert(`Order #${orderId} marked as delivered! Great job 🎉`, 'success');
+        addToHistory(orderId, 'Delivered');
+      } catch (_) {}
+    }
+
+    // ── HISTORY ───────────────────────────────────────────────────────────
+    function addToHistory(orderId, status) {
+      const tbody = document.getElementById('history-body');
+      if (tbody.querySelector('[data-empty]')) tbody.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-family:monospace;">#${orderId}</td>
+        <td>—</td>
+        <td>~3.2 km</td>
+        <td><span class="pill ${status.toLowerCase()}">${status}</span></td>
+      `;
+      tbody.prepend(tr);
+    }
+
+    // ── HELPERS ───────────────────────────────────────────────────────────
+    function showAlert(msg, type) {
+      const el = document.getElementById('alert');
+      el.textContent = msg;
+      el.className = `alert ${type}`;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 4000);
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_id');
+      localStorage.removeItem('role');
+      window.location.href = '/frontend/login.html';
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
