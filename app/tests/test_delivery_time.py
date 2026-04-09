@@ -18,18 +18,18 @@ def delivery_service():
 
 # ----- Test cases for DeliveryService class -----
 # Test that the delivery_time method returns the correct delivery for a valid order
-def test_delivery_time_with_valid_id(delivery_service, order_example):
-    with patch("app.services.delivery_service.repo") as mock_repo:
-        mock_repo.deliveries = {}
-        mock_repo.get_delivery_time.return_value = 25
-        delivery_service.assign_delivery(order_example)
-        delivery_time = delivery_service.get_delivery_time(order_example.order_id)
-        assert delivery_time == 25
+def test_delivery_time_with_valid_id(order_example):
+    service = DeliveryService()
+
+    with patch.object(service.repo, "get_delivery_time", return_value=25), \
+         patch.object(service.repo, "get_delivery_distance", return_value=10):
+
+        service.assign_delivery(order_example)
+        assert service.get_delivery_time(order_example.order_id) == 25
 
 # Test that the delivery_time method returns None for an invalid order id
-def test_delivery_time_with_invalid_id(delivery_service):
-    with patch("app.services.delivery_service.repo") as mock_repo:
-        mock_repo.deliveries = {}
-        mock_repo.get_delivery_time.return_value = None
-        delivery_time = delivery_service.get_delivery_time("invalid_id")
-        assert delivery_time is None
+def test_delivery_time_with_invalid_id():
+    service = DeliveryService()
+
+    with patch.object(service.repo, "get_delivery_time", return_value=None):
+        assert service.get_delivery_time("invalid_id") is None
