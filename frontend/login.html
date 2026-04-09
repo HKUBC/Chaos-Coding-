@@ -33,7 +33,20 @@
     }
 
     .brand-bar span { font-size: 1.8rem; }
-    .brand-bar h1   { font-size: 1.4rem; letter-spacing: -0.02em; }
+    .brand-bar h1   { font-size: 1.4rem; letter-spacing: -0.02em; flex: 1; }
+
+    .home-btn {
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      padding: 7px 18px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .home-btn:hover { background: rgba(255,255,255,0.28); }
 
     /* ── Page center ── */
     .page-center {
@@ -200,11 +213,8 @@
   <div class="brand-bar">
     <span>🍔</span>
     <h1>Food Delivery App</h1>
+    <a class="home-btn" href="/frontend/index.html">🏠 Home</a>
   </div>
-    <div class="header-right">
-      <a class="home-btn" href="/frontend/index.html">🏠 Home</a>
-    </div>
-  </header>
 
   <div class="page-center">
     <div class="card">
@@ -288,11 +298,14 @@
         localStorage.setItem('token', data.token);
         localStorage.setItem('user_id', user_id);
         localStorage.setItem('role', data.role);
+        if (data.restaurant_id != null) {
+          localStorage.setItem('restaurant_id', data.restaurant_id);
+        }
 
         const destinations = {
           'customer':          '/frontend/index.html',
           'driver':            '/frontend/driver-dashboard.html',
-          'restaurant_owner':  '/frontend/index.html',
+          'restaurant_owner':  '/frontend/dashboard.html',
         };
 
         const redirect = destinations[data.role] || '/frontend/index.html';
