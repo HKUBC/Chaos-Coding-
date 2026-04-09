@@ -5,285 +5,283 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Restaurant Menu</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #e63946;
+      --red-dark: #c1121f;
+      --bg: #f0f2f5;
+      --card: #fff;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --border: #e5e7eb;
     }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
     }
 
+    /* ── Header ── */
     header {
-      background-color: #e63946;
+      background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
       color: white;
-      padding: 20px 40px;
+      padding: 18px 40px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
+      box-shadow: 0 4px 12px rgba(230,57,70,0.35);
     }
 
     .back-btn {
-      background: rgba(255,255,255,0.2);
-      border: none;
+      background: rgba(255,255,255,0.18);
+      border: 1.5px solid rgba(255,255,255,0.4);
       color: white;
-      font-size: 1.2rem;
+      font-size: 1rem;
       cursor: pointer;
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 8px;
       transition: background 0.15s;
+      line-height: 1;
     }
+    .back-btn:hover { background: rgba(255,255,255,0.3); }
 
-    .back-btn:hover {
-      background: rgba(255,255,255,0.35);
-    }
+    header h1 { font-size: 1.5rem; letter-spacing: -0.02em; }
 
-    header h1 {
-      font-size: 1.6rem;
-    }
-
-    .header-right {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .cart-btn {
-      position: relative;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      font-size: 1.4rem;
-      cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 8px;
-      transition: background 0.15s;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-    }
-
-    .cart-btn:hover { background: rgba(255,255,255,0.35); }
-
-    .home-btn {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 8px;
-      transition: background 0.15s;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .home-btn:hover { background: rgba(255,255,255,0.35); }
-
-    .cart-badge {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      background: white;
-      color: #e63946;
-      font-size: 0.65rem;
-      font-weight: 700;
-      border-radius: 999px;
-      min-width: 16px;
-      height: 16px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 0 4px;
-    }
-
+    /* ── Restaurant Info Bar ── */
     .restaurant-info {
-      background: white;
-      border-bottom: 1px solid #eee;
-      padding: 20px 40px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 40px;
       display: flex;
-      gap: 32px;
+      gap: 0;
       flex-wrap: wrap;
     }
 
     .info-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: #555;
+      gap: 10px;
+      padding: 6px 28px 6px 0;
+      margin-right: 28px;
+      border-right: 1px solid var(--border);
     }
+    .info-item:last-child { border-right: none; }
 
-    .info-item span.icon {
-      font-size: 1.1rem;
-    }
-
-    .info-item strong {
-      color: #222;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-
-    .filters {
+    .info-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: #fff5f5;
       display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .info-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-value { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-top: 1px; }
+
+    /* ── Container ── */
+    .container {
+      max-width: 920px;
+      margin: 32px auto;
+      padding: 0 24px;
+    }
+
+    /* ── Filters ── */
+    .filter-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 28px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
-    .filters input {
+    .filter-input-wrap {
       flex: 1;
-      min-width: 160px;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      min-width: 140px;
+      position: relative;
+    }
+
+    .filter-input-wrap .filter-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
       font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    .filters input:focus {
-      border-color: #e63946;
-    }
-
-    .filters button {
-      padding: 10px 20px;
-      background: #e63946;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    .filters button:hover {
-      background: #c1121f;
-    }
-
-    .filters button.clear {
-      background: #eee;
-      color: #555;
-    }
-
-    .filters button.clear:hover {
-      background: #ddd;
-    }
-
-    .section-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #222;
-    }
-
-    .menu-list {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .menu-item {
-      background: white;
-      border-radius: 12px;
-      padding: 18px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      gap: 12px;
-    }
-
-    .menu-item-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex: 1;
-    }
-
-    .menu-item-icon {
-      font-size: 1.8rem;
-    }
-
-    .menu-item-name {
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .menu-item-cuisine {
-      font-size: 0.82rem;
-      color: #888;
-      margin-top: 2px;
-    }
-
-    .menu-item-price {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #e63946;
-      white-space: nowrap;
-    }
-
-    .add-to-cart-btn {
-      padding: 8px 16px;
-      background: #e63946;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s, transform 0.1s;
-      flex-shrink: 0;
-    }
-
-    .add-to-cart-btn:hover { background: #c1121f; }
-    .add-to-cart-btn:active { transform: scale(0.96); }
-    .add-to-cart-btn.added {
-      background: #2d6a4f;
       pointer-events: none;
     }
 
+    .filter-input-wrap input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .filter-input-wrap input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(230,57,70,0.1);
+      background: #fff;
+    }
+
+    .filter-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-search {
+      padding: 9px 22px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-search:hover { background: var(--red-dark); }
+
+    .btn-clear {
+      padding: 9px 18px;
+      background: var(--bg);
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-clear:hover { background: #e5e7eb; }
+
+    /* ── Section Header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .count-badge {
+      background: var(--red);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    /* ── Menu Grid ── */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .menu-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1.5px solid transparent;
+      transition: border-color 0.18s, transform 0.18s;
+      cursor: default;
+    }
+
+    .menu-card:hover {
+      border-color: var(--border);
+      transform: translateY(-2px);
+    }
+
+    .menu-card-icon {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      border-radius: 12px;
+      background: #fff5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .menu-card-body { flex: 1; min-width: 0; }
+
+    .menu-card-name {
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .menu-card-cuisine {
+      font-size: 0.77rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .menu-card-price {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--red);
+      white-space: nowrap;
+    }
+
+    /* ── Status ── */
     .status {
       text-align: center;
       padding: 60px 20px;
-      font-size: 1rem;
-      color: #888;
+      color: var(--muted);
     }
 
-    .status.error {
-      color: #e63946;
-    }
+    .status.error { color: var(--red); }
 
     .spinner {
       width: 36px;
       height: 36px;
-      border: 4px solid #eee;
-      border-top-color: #e63946;
+      border: 4px solid var(--border);
+      border-top-color: var(--red);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       margin: 0 auto 16px;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
   <header>
-    <button class="back-btn" onclick="window.location.href='/'">&#8592;</button>
+    <button class="back-btn" onclick="window.location.href='/'">&#8592; Back</button>
     <span>🍽️</span>
     <h1 id="header-title">Restaurant Menu</h1>
     <div class="header-right">
@@ -297,38 +295,57 @@
 
   <div class="restaurant-info" id="restaurant-info" style="display:none;">
     <div class="info-item">
-      <span class="icon">🍴</span>
-      <div><div style="font-size:0.75rem;color:#aaa;">Cuisine</div><strong id="info-cuisine">—</strong></div>
+      <div class="info-icon">🍴</div>
+      <div><div class="info-label">Cuisine</div><div class="info-value" id="info-cuisine">—</div></div>
     </div>
     <div class="info-item">
-      <span class="icon">📍</span>
-      <div><div style="font-size:0.75rem;color:#aaa;">Location</div><strong id="info-location">—</strong></div>
+      <div class="info-icon">📍</div>
+      <div><div class="info-label">Location</div><div class="info-value" id="info-location">—</div></div>
     </div>
     <div class="info-item">
-      <span class="icon">🚚</span>
-      <div><div style="font-size:0.75rem;color:#aaa;">Delivery Method</div><strong id="info-delivery">—</strong></div>
+      <div class="info-icon">🚚</div>
+      <div><div class="info-label">Delivery</div><div class="info-value" id="info-delivery">—</div></div>
     </div>
   </div>
 
   <div class="container">
 
-    <div class="filters">
-      <input type="text" id="filter-name" placeholder="Search by food name..." />
-      <input type="text" id="filter-cuisine" placeholder="Filter by cuisine..." />
-      <input type="number" id="filter-min" placeholder="Min price ($)" min="0" />
-      <input type="number" id="filter-max" placeholder="Max price ($)" min="0" />
-      <button onclick="applyFilters()">Search</button>
-      <button class="clear" onclick="clearFilters()">Clear</button>
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="filter-input-wrap">
+          <span class="filter-icon">🔍</span>
+          <input type="text" id="filter-name" placeholder="Search food…" />
+        </div>
+        <div class="filter-input-wrap">
+          <span class="filter-icon">🍴</span>
+          <input type="text" id="filter-cuisine" placeholder="Cuisine type…" />
+        </div>
+        <div class="filter-input-wrap">
+          <span class="filter-icon">$</span>
+          <input type="number" id="filter-min" placeholder="Min price" min="0" />
+        </div>
+        <div class="filter-input-wrap">
+          <span class="filter-icon">$</span>
+          <input type="number" id="filter-max" placeholder="Max price" min="0" />
+        </div>
+        <div class="filter-btns">
+          <button class="btn-search" onclick="applyFilters()">Search</button>
+          <button class="btn-clear" onclick="clearFilters()">Clear</button>
+        </div>
+      </div>
     </div>
 
-    <p class="section-title" id="section-title">Menu Items</p>
+    <div class="section-header">
+      <span class="section-title" id="section-title">Menu Items</span>
+      <span class="count-badge" id="menu-count" style="display:none;"></span>
+    </div>
 
     <div id="status" class="status">
       <div class="spinner"></div>
-      Loading menu...
+      Loading menu…
     </div>
 
-    <div class="menu-list" id="menu-list"></div>
+    <div class="menu-grid" id="menu-list"></div>
   </div>
 
   <script>
@@ -336,23 +353,20 @@
 
     const params = new URLSearchParams(window.location.search);
     const restaurantId = params.get('id');
-
     if (!restaurantId) window.location.href = '/';
 
-    const customerId = localStorage.getItem('user_id');
-
-    const foodIcons = ['🍕', '🍔', '🌮', '🍜', '🍱', '🥗', '🍣', '🥘', '🌯', '🍛'];
+    const foodIcons = ['🍕','🍔','🌮','🍜','🍱','🥗','🍣','🥘','🌯','🍛'];
     function iconForItem(name) {
       const n = name.toLowerCase();
-      if (n.includes('pizza')) return '🍕';
+      if (n.includes('pizza'))  return '🍕';
       if (n.includes('burger')) return '🍔';
       if (n.includes('taco') || n.includes('burrito')) return '🌮';
-      if (n.includes('sushi')) return '🍣';
+      if (n.includes('sushi'))  return '🍣';
       if (n.includes('pasta') || n.includes('noodle')) return '🍜';
-      if (n.includes('salad')) return '🥗';
+      if (n.includes('salad'))  return '🥗';
       if (n.includes('rice') || n.includes('briyani')) return '🍚';
       if (n.includes('cake') || n.includes('dessert')) return '🍰';
-      if (n.includes('soup')) return '🍲';
+      if (n.includes('soup'))   return '🍲';
       return foodIcons[Math.floor(Math.random() * foodIcons.length)];
     }
 
@@ -412,72 +426,58 @@
     }
 
     function renderItems(items) {
-      const menuEl = document.getElementById('menu-list');
-      const sectionTitle = document.getElementById('section-title');
-      const statusEl = document.getElementById('status');
+      const menuEl    = document.getElementById('menu-list');
+      const titleEl   = document.getElementById('section-title');
+      const countEl   = document.getElementById('menu-count');
+      const statusEl  = document.getElementById('status');
 
       menuEl.innerHTML = '';
       statusEl.style.display = 'none';
-      sectionTitle.textContent = `Menu Items (${items.length})`;
+      countEl.textContent = items.length;
+      countEl.style.display = items.length > 0 ? 'inline-block' : 'none';
 
       if (items.length === 0) {
         statusEl.textContent = 'No items match your search.';
-        statusEl.className = 'status';
         statusEl.style.display = 'block';
         return;
       }
 
-      items.forEach((item, idx) => {
-        const name  = item.food_item;
-        const price = parseFloat(item.order_value);
-        const itemId = `${restaurantId}_${name.replace(/\s+/g, '_').toLowerCase()}`;
-
-        const row = document.createElement('div');
-        row.className = 'menu-item';
-        row.innerHTML = `
-          <div class="menu-item-left">
-            <span class="menu-item-icon">${iconForItem(name)}</span>
-            <div>
-              <div class="menu-item-name">${name}</div>
-              <div class="menu-item-cuisine">${item.preferred_cuisine}</div>
-            </div>
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'menu-card';
+        card.innerHTML = `
+          <div class="menu-card-icon">${iconForItem(item.food_item)}</div>
+          <div class="menu-card-body">
+            <div class="menu-card-name">${item.food_item}</div>
+            <div class="menu-card-cuisine">${item.preferred_cuisine}</div>
           </div>
-          <div class="menu-item-price">$${price.toFixed(2)}</div>
-          <button class="add-to-cart-btn" id="btn-${idx}">+ Add to Cart</button>
+          <div class="menu-card-price">$${parseFloat(item.order_value).toFixed(2)}</div>
         `;
-
-        row.querySelector(`#btn-${idx}`).addEventListener('click', function() {
-          addToCart(itemId, name, price, this);
-        });
-
-        menuEl.appendChild(row);
+        menuEl.appendChild(card);
       });
     }
 
     async function loadMenu() {
-      const statusEl = document.getElementById('status');
-      const headerTitle = document.getElementById('header-title');
-      const infoEl = document.getElementById('restaurant-info');
+      const statusEl  = document.getElementById('status');
+      const infoEl    = document.getElementById('restaurant-info');
 
-      headerTitle.textContent = `Restaurant #${restaurantId}`;
+      document.getElementById('header-title').textContent = `Restaurant #${restaurantId}`;
       document.title = `Restaurant #${restaurantId} — Menu`;
 
       try {
         const res = await fetch(`${API_BASE}/restaurants/${restaurantId}/profile`);
         if (!res.ok) throw new Error(`Server returned ${res.status}`);
-
         const data = await res.json();
 
         const r = data.restaurant;
         if (r) {
-          document.getElementById('info-cuisine').textContent = r.preferred_cuisine || '—';
+          document.getElementById('info-cuisine').textContent  = r.preferred_cuisine || '—';
           document.getElementById('info-location').textContent = r.location || '—';
           document.getElementById('info-delivery').textContent = r.delivery_method || '—';
           infoEl.style.display = 'flex';
         }
 
         renderItems(data.menu);
-
       } catch (err) {
         statusEl.innerHTML = `<p>Failed to load menu.<br><small>${err.message}</small></p>`;
         statusEl.className = 'status error';
@@ -486,29 +486,28 @@
 
     async function applyFilters() {
       const statusEl = document.getElementById('status');
-      const menuEl = document.getElementById('menu-list');
+      const menuEl   = document.getElementById('menu-list');
 
-      const name = document.getElementById('filter-name').value.trim();
-      const cuisine = document.getElementById('filter-cuisine').value.trim();
-      const minPrice = document.getElementById('filter-min').value;
-      const maxPrice = document.getElementById('filter-max').value;
+      const name      = document.getElementById('filter-name').value.trim();
+      const cuisine   = document.getElementById('filter-cuisine').value.trim();
+      const minPrice  = document.getElementById('filter-min').value;
+      const maxPrice  = document.getElementById('filter-max').value;
 
       const query = new URLSearchParams();
-      if (name) query.set('food_item', name);
-      if (cuisine) query.set('cuisine', cuisine);
+      if (name)     query.set('food_item', name);
+      if (cuisine)  query.set('cuisine', cuisine);
       if (minPrice) query.set('min_price', minPrice);
       if (maxPrice) query.set('max_price', maxPrice);
 
       menuEl.innerHTML = '';
-      statusEl.innerHTML = '<div class="spinner"></div>Searching...';
+      statusEl.innerHTML = '<div class="spinner"></div>Searching…';
       statusEl.className = 'status';
       statusEl.style.display = 'block';
 
       try {
         const res = await fetch(`${API_BASE}/restaurants/${restaurantId}/items/filter?${query}`);
         if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        const items = await res.json();
-        renderItems(items);
+        renderItems(await res.json());
       } catch (err) {
         statusEl.innerHTML = `<p>Search failed.<br><small>${err.message}</small></p>`;
         statusEl.className = 'status error';
@@ -516,10 +515,9 @@
     }
 
     function clearFilters() {
-      document.getElementById('filter-name').value = '';
-      document.getElementById('filter-cuisine').value = '';
-      document.getElementById('filter-min').value = '';
-      document.getElementById('filter-max').value = '';
+      ['filter-name','filter-cuisine','filter-min','filter-max'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
       loadMenu();
     }
 

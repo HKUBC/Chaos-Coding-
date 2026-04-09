@@ -16,6 +16,8 @@ from app.api.routes.cart_route import router as cart_router
 from app.api.routes.payment_route import router as payment_router
 
 from app.services.restaurant_data_loader import load_all_restaurant
+from app.api.routes.auth_route import service as auth_service
+from app.model.user_role import UserRole
 
 app = FastAPI()
 
@@ -47,3 +49,9 @@ def root():
     return FileResponse("frontend/index.html")
 
 restaurant_data = load_all_restaurant('app/data/restaurants.csv') #loads the restaurant data from the csv file and stores it in a dictionary, where the key is the restaurant id and the value is the restaurant object
+
+# Pre-create a test business owner (restaurant_id=16) for demo purposes
+try:
+    auth_service.sign_up("owner1", "password123", UserRole.RESTAURANT_OWNER, restaurant_id=16)
+except ValueError:
+    pass  # already exists if server hot-reloads

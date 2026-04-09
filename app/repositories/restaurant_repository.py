@@ -12,8 +12,9 @@ class RestaurantRepository:
 
         if "is_open" not in self.df.columns:
             self.df["is_open"] = True
-        
+
         self.favorites = set()  # this will store the restaurant ids of the user's favorite restaurants, it is a set to avoid duplicates
+        self.unavailable_items = set()  # stores (restaurant_id, food_item) tuples for unavailable items
 
 
 
@@ -117,4 +118,21 @@ class RestaurantRepository:
         if max_price is not None:
             data = data[data["order_value"] <= max_price]
 
-        return data[["food_item", "order_value", "preferred_cuisine", "order_time"]]
+        data = data.copy()
+        data["available"] = data["food_item"].apply(
+            lambda item: (restaurant_id, item) not in self.unavailable_items
+        )
+
+        return data[["food_item", "order_value", "preferred_cuisine", "order_time", "available"]]
+
+    def toggle_item_availability(self, restaurant_id: int, food_item: str) -> bool:
+        key = (restaurant_id, food_item)
+        if key in self.unavailable_items:
+            self.unavailable_items.remove(key)
+            return True  # now available
+        else:
+            self.unavailable_items.add(key)
+            return False  # now unavailable
+
+    def get_unavailable_items(self, restaurant_id: int) -> list:
+        return [item for (rid, item) in self.unavailable_items if rid == restaurant_id]

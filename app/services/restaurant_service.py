@@ -85,7 +85,13 @@ class RestaurantService:
     
 
 
-    def filter_items( 
+    def toggle_item_availability(self, restaurant_id: int, food_item: str) -> bool:
+        return repo.toggle_item_availability(restaurant_id, food_item)
+
+    def get_unavailable_items(self, restaurant_id: int) -> list:
+        return repo.get_unavailable_items(restaurant_id)
+
+    def filter_items(
         self,
         restaurant_id,
         food_item=None,
