@@ -97,6 +97,12 @@ class RestaurantService:
     def archive_item(self, restaurant_id: int, food_item: str) -> bool:
         return repo.archive_item(restaurant_id, food_item)
 
+    def toggle_restaurant_open(self, restaurant_id: int) -> bool:
+        return repo.toggle_restaurant_open(restaurant_id)
+
+    def get_all_restaurants_info(self) -> list[dict]:
+        return repo.get_all_restaurants_info()
+
     def filter_items(
         self,
         restaurant_id,

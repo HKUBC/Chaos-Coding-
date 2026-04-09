@@ -106,3 +106,37 @@ class AuthService:
     def require_role(self, token: str, required_role: UserRole) -> None:
         if self.get_role(token) != required_role:
             raise ValueError(f"Access denied. Required role: {required_role.value}.")
+
+    def require_admin(self, token: str) -> None:
+        if self.get_role(token) != UserRole.ADMIN:
+            raise ValueError("Access denied. Admin role required.")
+
+    def get_all_users(self) -> list[dict]:
+        result = []
+        for user_id in self._credentials:
+            result.append({
+                "user_id":       user_id,
+                "role":          self._roles[user_id].value,
+                "restaurant_id": self._restaurant_ids.get(user_id),
+                **self._profiles.get(user_id, {}),
+            })
+        return result
+
+    def delete_user(self, user_id: str) -> None:
+        if user_id not in self._credentials:
+            raise ValueError(f"User '{user_id}' not found.")
+        del self._credentials[user_id]
+        del self._roles[user_id]
+        self._restaurant_ids.pop(user_id, None)
+        self._profiles.pop(user_id, None)
+        # Invalidate any active tokens for this user
+        for token, uid in list(self._tokens.items()):
+            if uid == user_id:
+                del self._tokens[token]
+        self._save()
+
+    def update_user_role(self, user_id: str, new_role: UserRole) -> None:
+        if user_id not in self._credentials:
+            raise ValueError(f"User '{user_id}' not found.")
+        self._roles[user_id] = new_role
+        self._save()

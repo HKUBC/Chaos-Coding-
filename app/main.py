@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from app.api.routes.admin_route import router as admin_router
 from app.api.routes.notification_route import router as notification_router
 from app.api.routes.restaurant_route import router as restaurant_router
 from app.api.routes.analytics_route import router as analytics_router
@@ -31,6 +32,7 @@ app.add_middleware(
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 # Routers include the prefix and tags
+app.include_router(admin_router)
 app.include_router(notification_router)
 app.include_router(restaurant_router)
 app.include_router(analytics_router)
@@ -53,5 +55,11 @@ restaurant_data = load_all_restaurant('app/data/restaurants.csv') #loads the res
 # Pre-create a test business owner (restaurant_id=16) for demo purposes
 try:
     auth_service.sign_up("owner1", "password123", UserRole.RESTAURANT_OWNER, restaurant_id=16)
+except ValueError:
+    pass  # already exists if server hot-reloads
+
+# Pre-create the platform admin account
+try:
+    auth_service.sign_up("admin", "Admin@123", UserRole.ADMIN)
 except ValueError:
     pass  # already exists if server hot-reloads

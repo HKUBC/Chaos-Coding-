@@ -151,6 +151,24 @@ class RestaurantRepository:
         new_row = pd.DataFrame([template])
         self.df = pd.concat([self.df, new_row], ignore_index=True)
 
+    def toggle_restaurant_open(self, restaurant_id: int) -> bool:
+        """Toggle is_open for all rows of a restaurant. Returns the new open state."""
+        mask = self.df["restaurant_id"] == restaurant_id
+        if not mask.any():
+            raise ValueError(f"Restaurant {restaurant_id} not found.")
+        current = self.df.loc[mask, "is_open"].iloc[0]
+        self.df.loc[mask, "is_open"] = not current
+        return not current
+
+    def get_all_restaurants_info(self) -> list[dict]:
+        """Return one row per restaurant_id with open status."""
+        cols = ["restaurant_id", "is_open"]
+        return (
+            self.df[cols]
+            .drop_duplicates(subset=["restaurant_id"])
+            .to_dict("records")
+        )
+
     def archive_item(self, restaurant_id: int, food_item: str) -> bool:
         mask = (self.df["restaurant_id"] == restaurant_id) & (self.df["food_item"] == food_item)
         if not mask.any():
