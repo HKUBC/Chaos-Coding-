@@ -6,6 +6,8 @@ class DeliveryStatus(Enum):
     """
 
     PENDING    = "pending"
+    ACCEPTED   = "accepted"
+    PICKED_UP  = "picked_up"
     DELIVERING = "delivering"
     DELIVERED  = "delivered"
     CANCELLED  = "cancelled"

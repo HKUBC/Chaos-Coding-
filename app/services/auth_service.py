@@ -14,6 +14,7 @@ class AuthService:
         self._roles: dict[str, UserRole] = {}               # user_id -> role
         self._restaurant_ids: dict[str, int] = {}           # user_id -> restaurant_id (owners only)
         self._tokens: dict[str, str] = {}                   # token -> user_id
+        self._profiles: dict[str, dict] = {}                # user_id -> {full_name, email, phone, ...}
 
         self._load()
 
@@ -29,6 +30,8 @@ class AuthService:
                 self._roles[user_id] = UserRole(entry['role'])
                 if entry.get('restaurant_id') is not None:
                     self._restaurant_ids[user_id] = entry['restaurant_id']
+                if entry.get('profile'):
+                    self._profiles[user_id] = entry['profile']
         except (FileNotFoundError, json.JSONDecodeError, KeyError):
             pass  # First run or corrupted file — start fresh
 
@@ -40,6 +43,7 @@ class AuthService:
                 'hashed_password': hashed,
                 'role':            self._roles[user_id].value,
                 'restaurant_id':   self._restaurant_ids.get(user_id),
+                'profile':         self._profiles.get(user_id, {}),
             }
             for user_id, (salt, hashed) in self._credentials.items()
         }
@@ -52,7 +56,8 @@ class AuthService:
     def _hash_password(self, password: str, salt: str) -> str:
         return hashlib.sha256((salt + password).encode()).hexdigest()
 
-    def sign_up(self, user_id: str, password: str, role: UserRole, restaurant_id: int | None = None) -> None:
+    def sign_up(self, user_id: str, password: str, role: UserRole,
+                restaurant_id: int | None = None, profile: dict | None = None) -> None:
         if user_id in self._credentials:
             raise ValueError(f"Username '{user_id}' is already taken. Please try a different username.")
         salt = os.urandom(16).hex()
@@ -60,6 +65,8 @@ class AuthService:
         self._roles[user_id] = role
         if restaurant_id is not None:
             self._restaurant_ids[user_id] = restaurant_id
+        if profile:
+            self._profiles[user_id] = profile
         self._save()
 
     def login(self, user_id: str, password: str) -> str:
@@ -88,10 +95,12 @@ class AuthService:
 
     def get_me(self, token: str) -> dict:
         user_id = self.validate_token(token)
+        profile = self._profiles.get(user_id, {})
         return {
             "user_id": user_id,
             "role": self._roles[user_id].value,
-            "restaurant_id": self._restaurant_ids.get(user_id)
+            "restaurant_id": self._restaurant_ids.get(user_id),
+            **profile,
         }
 
     def require_role(self, token: str, required_role: UserRole) -> None:

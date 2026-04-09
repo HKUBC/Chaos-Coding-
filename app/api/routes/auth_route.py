@@ -13,6 +13,14 @@ class SignUpRequest(BaseModel):
     password: str
     role: UserRole = UserRole.CUSTOMER
     restaurant_id: Optional[int] = None
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    # Restaurant owner extras
+    restaurant_name: Optional[str] = None
+    # Driver extras
+    vehicle: Optional[str] = None
+    license_plate: Optional[str] = None
 
 class LoginRequest(BaseModel):
     user_id: str
@@ -24,7 +32,16 @@ class TokenRequest(BaseModel):
 @router.post("/signup")
 def sign_up(request: SignUpRequest):
     try:
-        service.sign_up(request.user_id, request.password, request.role, request.restaurant_id)
+        profile = {k: v for k, v in {
+            "full_name":       request.full_name,
+            "email":           request.email,
+            "phone":           request.phone,
+            "restaurant_name": request.restaurant_name,
+            "vehicle":         request.vehicle,
+            "license_plate":   request.license_plate,
+        }.items() if v is not None}
+        service.sign_up(request.user_id, request.password, request.role,
+                        request.restaurant_id, profile or None)
         return {"message": f"User {request.user_id} created successfully."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

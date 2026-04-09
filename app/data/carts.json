@@ -1,0 +1,50 @@
+{
+  "customer_add_item": {
+    "restaurant_id": "restaurant1",
+    "items": [
+      {
+        "item_id": "i1",
+        "name": "Burger",
+        "price": 9.99,
+        "quantity": 1
+      }
+    ]
+  },
+  "customer_remove": {
+    "restaurant_id": "restaurant1",
+    "items": []
+  },
+  "customer_update_qty": {
+    "restaurant_id": "restaurant1",
+    "items": [
+      {
+        "item_id": "i1",
+        "name": "Burger",
+        "price": 9.99,
+        "quantity": 4
+      }
+    ]
+  },
+  "customer_view_items": {
+    "restaurant_id": "restaurant1",
+    "items": [
+      {
+        "item_id": "i1",
+        "name": "Fries",
+        "price": 3.5,
+        "quantity": 2
+      }
+    ]
+  },
+  "kinjalchandel": {
+    "restaurant_id": "3",
+    "items": [
+      {
+        "item_id": "Pasta",
+        "name": "Pasta",
+        "price": 10.07,
+        "quantity": 1
+      }
+    ]
+  }
+}

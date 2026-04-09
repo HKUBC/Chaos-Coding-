@@ -2,16 +2,25 @@
   "kinjalchandel": {
     "salt": "59f5d68ada17f71009fc13b137d7ae94",
     "hashed_password": "067c137bfcce85cc62d1cc081e30d48d55aa3668c6e8bd1ffdc12a79410eeffb",
-    "role": "customer"
+    "role": "customer",
+    "restaurant_id": null
   },
   "kinjalchandel1": {
     "salt": "c67668146af532466d600bbc15be47c5",
     "hashed_password": "9a9d968cb5b2199797e4f483da8d1e3fbd5852374825ea8b00510f7784f4a338",
-    "role": "driver"
+    "role": "driver",
+    "restaurant_id": null
   },
   "kinjalchandel2": {
     "salt": "5c9d38a31477de634fe87b42d631333d",
     "hashed_password": "ae3461ee145373579ae4e3f1ea558799c520ec7148b7398554ed88f4943ceb22",
-    "role": "restaurant_owner"
+    "role": "restaurant_owner",
+    "restaurant_id": null
+  },
+  "owner1": {
+    "salt": "02fcc44e797ba2e74497c85218af28c5",
+    "hashed_password": "c39987d049328b0eaaccf87f871381c649b1cbcc6932d776d3bd4b571b9c1a90",
+    "role": "restaurant_owner",
+    "restaurant_id": 16
   }
 }
