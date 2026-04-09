@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Login – Food Delivery App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+      color: white;
+    }
+
+    .logo .icon { font-size: 3.5rem; display: block; margin-bottom: 8px; }
+    .logo h1 { font-size: 1.6rem; font-weight: 700; }
+    .logo p { font-size: 0.88rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .card h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+
+    .card .subtitle {
+      font-size: 0.88rem;
+      color: #888;
+      margin-bottom: 28px;
+    }
+
+    .driver-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f4fd;
+      color: #0f3460;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+      border: 1px solid #bee3f8;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #333;
+      background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #0f3460;
+      box-shadow: 0 0 0 3px rgba(15,52,96,0.1);
+      background: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #0f3460, #1a1a2e);
+      color: white;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 18px;
+      display: none;
+    }
+
+    .alert.error  { background: #fff0f1; border: 1px solid #f4a0a7; color: #c1121f; }
+    .alert.success { background: #f0fff4; border: 1px solid #9ae6b4; color: #276749; }
+
+    .link-row {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #888;
+    }
+
+    .link-row a { color: #0f3460; text-decoration: none; font-weight: 600; }
+    .link-row a:hover { text-decoration: underline; }
+
+    .back-home {
+      margin-top: 24px;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    .back-home a { color: rgba(255,255,255,0.9); text-decoration: none; font-weight: 600; }
+    .back-home a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <span class="icon">🚗</span>
+    <h1>Driver Portal</h1>
+    <p>Food Delivery App</p>
+  </div>
+
+  <div class="card">
+    <div class="driver-badge">🪪 Driver Access Only</div>
+    <h2>Sign in to deliver</h2>
+    <p class="subtitle">Access your dashboard, deliveries and earnings</p>
+
+    <div class="alert" id="alert"></div>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="user_id">Driver ID / Username</label>
+        <input type="text" id="user_id" placeholder="Enter your driver ID" autocomplete="username" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn" id="login-btn">Sign In</button>
+    </form>
+
+    <div class="link-row">
+      Not a driver? <a href="/frontend/login.html">Customer login</a>
+    </div>
+  </div>
+
+  <div class="back-home">
+    <a href="/frontend/index.html">🏠 Back to Home</a>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000';
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alert');
+      el.textContent = msg;
+      el.className = `alert ${type}`;
+      el.style.display = 'block';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user_id  = document.getElementById('user_id').value.trim();
+      const password = document.getElementById('password').value;
+      const btn      = document.getElementById('login-btn');
+
+      if (!user_id || !password) {
+        showAlert('Please fill in all fields.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      try {
+        const res  = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showAlert(data.detail || 'Login failed.', 'error');
+          return;
+        }
+
+        // Validate driver role
+        if (data.role !== 'driver') {
+          showAlert('Access denied. This portal is for drivers only.', 'error');
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user_id', user_id);
+        localStorage.setItem('role', data.role);
+
+        showAlert('Login successful! Loading dashboard…', 'success');
+        setTimeout(() => { window.location.href = '/frontend/driver-dashboard.html'; }, 800);
+
+      } catch (err) {
+        showAlert('Could not connect to the server.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+
+</body>
+</html>
