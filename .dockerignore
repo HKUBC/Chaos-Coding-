@@ -2,5 +2,10 @@ __pycache__
 **/__pycache__
 *.pyc
 *.pyo
+*.pyd
 .pytest_cache
+.git
+*.log
 .env
+.venv
+venv/
