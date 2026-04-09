@@ -136,3 +136,25 @@ class RestaurantRepository:
 
     def get_unavailable_items(self, restaurant_id: int) -> list:
         return [item for (rid, item) in self.unavailable_items if rid == restaurant_id]
+
+    def add_item(self, restaurant_id: int, food_item: str, cuisine: str, price: float) -> None:
+        # Copy a row from the same restaurant to inherit metadata (location, delivery_method, etc.)
+        existing = self.df[self.df["restaurant_id"] == restaurant_id]
+        template = existing.iloc[0].to_dict() if not existing.empty else {}
+        template.update({
+            "restaurant_id": restaurant_id,
+            "food_item": food_item,
+            "preferred_cuisine": cuisine,
+            "order_value": price,
+            "is_open": True,
+        })
+        new_row = pd.DataFrame([template])
+        self.df = pd.concat([self.df, new_row], ignore_index=True)
+
+    def archive_item(self, restaurant_id: int, food_item: str) -> bool:
+        mask = (self.df["restaurant_id"] == restaurant_id) & (self.df["food_item"] == food_item)
+        if not mask.any():
+            return False
+        self.df = self.df[~mask].reset_index(drop=True)
+        self.unavailable_items.discard((restaurant_id, food_item))
+        return True

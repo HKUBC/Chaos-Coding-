@@ -72,6 +72,28 @@ async def filter_menu_items(
 class ToggleItemRequest(BaseModel):
     food_item: str
 
+class AddItemRequest(BaseModel):
+    food_item: str
+    cuisine: str
+    price: float
+
+class ArchiveItemRequest(BaseModel):
+    food_item: str
+
+@router.post("/{restaurant_id}/items/add")
+async def add_menu_item(restaurant_id: int, request: AddItemRequest):
+    if not service.get_restaurant(restaurant_id):
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    service.add_item(restaurant_id, request.food_item, request.cuisine, request.price)
+    return {"message": "Item added successfully"}
+
+@router.post("/{restaurant_id}/items/archive")
+async def archive_menu_item(restaurant_id: int, request: ArchiveItemRequest):
+    result = service.archive_item(restaurant_id, request.food_item)
+    if not result:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message": "Item archived successfully"}
+
 @router.post("/{restaurant_id}/items/toggle")
 async def toggle_item_availability(restaurant_id: int, request: ToggleItemRequest):
     if not service.get_restaurant(restaurant_id) and not service.filter_items(restaurant_id):

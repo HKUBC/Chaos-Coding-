@@ -286,6 +286,86 @@
     }
     .toggle-btn.unavailable:hover { background: #fecaca; }
 
+    /* ── Archive Button ── */
+    .archive-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1.5px solid #e5e7eb;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: white;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .archive-btn:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .archive-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Add Item Form ── */
+    .add-item-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 28px;
+    }
+
+    .add-item-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .add-item-fields {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .add-item-fields input {
+      flex: 1;
+      min-width: 130px;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: #fafafa;
+      transition: border-color 0.2s;
+    }
+    .add-item-fields input:focus {
+      outline: none;
+      border-color: var(--red);
+      background: white;
+    }
+
+    .add-item-btn {
+      padding: 9px 22px;
+      background: linear-gradient(135deg, var(--red), var(--red-dark));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .add-item-btn:hover { opacity: 0.9; }
+    .add-item-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .add-item-alert {
+      font-size: 0.82rem;
+      margin-top: 10px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      display: none;
+    }
+    .add-item-alert.success { background: #f0fdf4; color: #166534; }
+    .add-item-alert.error   { background: #fff0f1; color: #991b1b; }
+
     /* ── Status / Spinner ── */
     .status {
       text-align: center;
@@ -364,12 +444,23 @@
       </div>
     </div>
 
+    <div class="add-item-card">
+      <h3>+ Add New Menu Item</h3>
+      <div class="add-item-fields">
+        <input type="text"   id="new-item-name"    placeholder="Item name (e.g. Margherita Pizza)" />
+        <input type="text"   id="new-item-cuisine"  placeholder="Cuisine (e.g. Italian)" />
+        <input type="number" id="new-item-price"    placeholder="Price" min="0" step="0.01" style="max-width:110px;" />
+        <button class="add-item-btn" id="add-item-btn" onclick="addItem()">Add Item</button>
+      </div>
+      <div class="add-item-alert" id="add-item-alert"></div>
+    </div>
+
     <div class="section-header">
       <div style="display:flex;align-items:center;gap:10px;">
         <span class="section-title" id="section-title">Menu Items</span>
         <span class="section-badge" id="menu-count" style="display:none;"></span>
       </div>
-      <span class="legend">Toggle to mark items as unavailable</span>
+      <span class="legend">Toggle availability · Archive to remove</span>
     </div>
 
     <div id="status" class="status">
@@ -496,6 +587,11 @@
           btn.textContent = isAvailable ? '✓ Available' : '✗ Unavailable';
           btn.addEventListener('click', () => toggleItem(restaurantId, item.food_item, btn, row));
 
+          const archiveBtn = document.createElement('button');
+          archiveBtn.className = 'archive-btn';
+          archiveBtn.textContent = '🗑 Archive';
+          archiveBtn.addEventListener('click', () => archiveItem(restaurantId, item.food_item, row, archiveBtn));
+
           row.innerHTML = `
             <div class="menu-item-left">
               <div class="menu-item-icon">${iconForItem(item.food_item)}</div>
@@ -509,11 +605,119 @@
             </div>
           `;
           row.querySelector('.menu-item-right').appendChild(btn);
+          row.querySelector('.menu-item-right').appendChild(archiveBtn);
           menuEl.appendChild(row);
         });
 
       } catch (err) {
         statusEl.innerHTML = `<p>Failed to load dashboard.<br><small>${err.message}</small></p>`;
+      }
+    }
+
+    async function addItem() {
+      const name    = document.getElementById('new-item-name').value.trim();
+      const cuisine = document.getElementById('new-item-cuisine').value.trim();
+      const price   = parseFloat(document.getElementById('new-item-price').value);
+      const alertEl = document.getElementById('add-item-alert');
+      const btn     = document.getElementById('add-item-btn');
+
+      if (!name || !cuisine || isNaN(price) || price <= 0) {
+        alertEl.textContent = 'Please fill in all fields with valid values.';
+        alertEl.className = 'add-item-alert error';
+        alertEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Adding…';
+      try {
+        const res = await fetch(`${API_BASE}/restaurants/${restaurantId}/items/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ food_item: name, cuisine, price })
+        });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Failed');
+
+        alertEl.textContent = `"${name}" added to menu.`;
+        alertEl.className = 'add-item-alert success';
+        alertEl.style.display = 'block';
+
+        // Clear inputs and reload menu list
+        document.getElementById('new-item-name').value    = '';
+        document.getElementById('new-item-cuisine').value  = '';
+        document.getElementById('new-item-price').value   = '';
+        setTimeout(() => { alertEl.style.display = 'none'; }, 3000);
+
+        // Add the new row directly to the list without a full reload
+        const menuEl = document.getElementById('menu-list');
+        const countEl = document.getElementById('menu-count');
+        const row = document.createElement('div');
+        row.className = 'menu-item';
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'toggle-btn available';
+        toggleBtn.textContent = '✓ Available';
+        toggleBtn.addEventListener('click', () => toggleItem(restaurantId, name, toggleBtn, row));
+
+        const archiveBtn = document.createElement('button');
+        archiveBtn.className = 'archive-btn';
+        archiveBtn.textContent = '🗑 Archive';
+        archiveBtn.addEventListener('click', () => archiveItem(restaurantId, name, row, archiveBtn));
+
+        row.innerHTML = `
+          <div class="menu-item-left">
+            <div class="menu-item-icon">${iconForItem(name)}</div>
+            <div>
+              <div class="menu-item-name">${name}</div>
+              <div class="menu-item-cuisine">${cuisine}</div>
+            </div>
+          </div>
+          <div class="menu-item-right">
+            <div class="menu-item-price">$${price.toFixed(2)}</div>
+          </div>
+        `;
+        row.querySelector('.menu-item-right').appendChild(toggleBtn);
+        row.querySelector('.menu-item-right').appendChild(archiveBtn);
+        menuEl.appendChild(row);
+
+        const current = parseInt(countEl.textContent) || 0;
+        countEl.textContent = current + 1;
+        countEl.style.display = 'inline-block';
+
+      } catch (err) {
+        alertEl.textContent = err.message || 'Could not add item.';
+        alertEl.className = 'add-item-alert error';
+        alertEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Add Item';
+      }
+    }
+
+    async function archiveItem(restaurantId, foodItem, row, btn) {
+      if (!confirm(`Archive "${foodItem}"? It will be removed from the menu.`)) return;
+      btn.disabled = true;
+      btn.textContent = 'Archiving…';
+      try {
+        const res = await fetch(`${API_BASE}/restaurants/${restaurantId}/items/archive`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ food_item: foodItem })
+        });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Failed');
+
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = '0';
+        setTimeout(() => row.remove(), 300);
+
+        const countEl = document.getElementById('menu-count');
+        const current = parseInt(countEl.textContent) || 1;
+        countEl.textContent = current - 1;
+
+      } catch (err) {
+        alert('Could not archive item: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '🗑 Archive';
       }
     }
 
